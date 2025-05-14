@@ -1,0 +1,89 @@
+<context>
+# Overview
+This project is a backend data pipeline and storage solution for Helldivers 2 community and analytics tools. It fetches real-time and static data from the unofficial Helldivers 2 API ([helldiverstrainingmanual.com/api](https://helldiverstrainingmanual.com/api)), storing and updating this data in a local MySQL database. The solution enables downstream applications, dashboards, or analytics to access up-to-date Helldivers 2 war, planet, and event data efficiently.
+
+# Core Features
+- **API Data Ingestion**
+  - Fetches data from all relevant endpoints of the Helldivers 2 API (war status, planet info, news, campaign, history, major orders, planets).
+  - Handles JSON parsing and error handling for each endpoint.
+- **MySQL Data Storage**
+  - Maps API data to normalized MySQL tables (e.g., planets, war_status, news, campaigns, major_orders, planet_history).
+  - Handles schema migrations and updates as API evolves.
+- **Scheduled Updates**
+  - Runs a daily job to refresh all data from the API and update the MySQL database.
+  - Ensures idempotency and data consistency.
+- **Extensibility**
+  - Designed to allow easy addition of new endpoints or data fields as the API expands.
+
+# User Experience
+- **User Personas**
+  - Backend developers integrating Helldivers 2 data into their apps.
+  - Community site maintainers and data analysts.
+- **Key User Flows**
+  - Set up the project and configure MySQL connection.
+  - Run the update script manually or via a scheduler (e.g., cron).
+  - Query the MySQL database for up-to-date Helldivers 2 data.
+- **UI/UX Considerations**
+  - No direct UI; focus is on reliability, logging, and clear error messages.
+
+</context>
+<PRD>
+# Technical Architecture
+- **System Components**
+  - Data fetcher: Scripts/services to call each API endpoint.
+  - Data parser/transformer: Converts API JSON to MySQL-ready format.
+  - Database layer: Handles inserts, updates, and schema management.
+  - Scheduler: Triggers daily updates (e.g., cron, systemd timer).
+- **Data Models**
+  - Tables for planets, war_status, news, campaigns, major_orders, planet_history, etc.
+  - Foreign keys and indexes for efficient querying.
+- **APIs and Integrations**
+  - Consumes: `https://helldiverstrainingmanual.com/api/v1/war/status`, `/info`, `/news`, `/campaign`, `/history/[planetIndex]`, `/major-orders`, `/planets`
+  - Database: MySQL (local instance, credentials via environment variables or config file)
+- **Infrastructure Requirements**
+  - Local or cloud server with MySQL installed.
+  - Network access to the Helldivers 2 API.
+  - Scheduler (cron or equivalent).
+
+# Development Roadmap
+- **MVP Requirements**
+  - Implement data fetchers for all required endpoints.
+  - Design and migrate MySQL schema.
+  - Implement data transformation and upsert logic.
+  - Set up daily scheduler for updates.
+  - Logging and error handling.
+- **Future Enhancements**
+  - Incremental updates (only fetch new/changed data).
+  - Webhook or push-based updates if API supports.
+  - Data validation and anomaly detection.
+  - Admin dashboard for monitoring update status.
+  - Support for additional endpoints as API evolves.
+
+# Logical Dependency Chain
+- Set up MySQL database and schema.
+- Implement and test data fetchers for each endpoint.
+- Implement data transformation and storage logic.
+- Integrate all fetchers into a single update script.
+- Set up and test daily scheduler.
+- Add logging and error handling.
+- (Optional) Build monitoring/dashboard tools.
+
+# Risks and Mitigations
+- **API Instability:** The API is unofficial and may change or go offline. Mitigation: Modular fetchers, robust error handling, and clear logging.
+- **Data Model Drift:** API fields may change. Mitigation: Schema migration scripts and versioned database backups.
+- **Rate Limiting/Blocking:** No current rate limits, but future changes possible. Mitigation: Respectful polling, exponential backoff on errors.
+- **Data Consistency:** Ensuring updates do not create duplicates or lose data. Mitigation: Use upsert logic and transaction management.
+
+# Appendix
+- **API Documentation:** [https://helldiverstrainingmanual.com/api](https://helldiverstrainingmanual.com/api)
+- **Example API Endpoints:**
+  - `/v1/war/status`
+  - `/v1/war/info`
+  - `/v1/war/news`
+  - `/v1/war/campaign`
+  - `/v1/war/history/[planetIndex]`
+  - `/v1/war/major-orders`
+  - `/v1/planets`
+- **MySQL Schema Draft:** (to be defined in implementation tasks)
+- **Update Frequency:** Once per day (configurable).
+</PRD> 
