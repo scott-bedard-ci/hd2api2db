@@ -16,11 +16,29 @@ class WarInfoFetcher:
             self.logger.info("Transforming war info data")
             transformed = self.transformer.transform(war_info_data)
 
+            # Ensure all referenced factions exist (by id)
+            faction_ids = set()
+            for pi in transformed['planet_infos']:
+                if pi.get('initial_faction_id') is not None:
+                    faction_ids.add(pi['initial_faction_id'])
+            for hw in transformed['home_worlds']:
+                if hw.get('faction_id') is not None:
+                    faction_ids.add(hw['faction_id'])
+            for faction_id in faction_ids:
+                self.db_manager.get_or_create_faction_by_id(faction_id)
+
+            # Ensure planet_id 0 exists for API edge case
+            self.db_manager.ensure_unknown_planet()
+
             self.logger.info("Storing war_info row")
             self.db_manager.upsert_war_info(transformed['war_info'])
 
             self.logger.info("Storing planet_infos rows")
-            self.db_manager.upsert_planet_infos(transformed['war_info']['war_id'], transformed['planet_infos'])
+            skipped = self.db_manager.upsert_planet_infos(transformed['war_info']['war_id'], transformed['planet_infos'])
+            if skipped:
+                for skip in skipped:
+                    self.logger.warning(f"Skipped planet_info with missing planet_id: {skip['planet_id']} (error: {skip['error']})")
+                self.logger.error(f"Skipped {len(skipped)} planet_infos due to missing planet_id.")
 
             self.logger.info("Storing home_worlds rows")
             self.db_manager.upsert_home_worlds(transformed['war_info']['war_id'], transformed['home_worlds'])

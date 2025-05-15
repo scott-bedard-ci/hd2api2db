@@ -335,6 +335,21 @@ class DatabaseManager:
             cursor.close()
             conn.close()
 
+    def get_or_create_faction_by_id(self, faction_id):
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        try:
+            cursor.execute("SELECT id FROM factions WHERE id = %s", (faction_id,))
+            row = cursor.fetchone()
+            if row:
+                return row[0]
+            cursor.execute("INSERT INTO factions (id, name) VALUES (%s, %s)", (faction_id, f"Unknown ({faction_id})"))
+            conn.commit()
+            return faction_id
+        finally:
+            cursor.close()
+            conn.close()
+
     def upsert_war_info(self, war_info_data):
         conn = self.get_connection()
         cursor = conn.cursor()
@@ -371,28 +386,35 @@ class DatabaseManager:
     def upsert_planet_infos(self, war_id, planet_infos):
         conn = self.get_connection()
         cursor = conn.cursor()
+        skipped = []
         try:
             # Delete existing planet_infos for this war_id
             cursor.execute("DELETE FROM planet_infos WHERE war_id = %s", (war_id,))
-            # Bulk insert new planet_infos
+            # Insert new planet_infos one by one, robust to FK errors
             query = """
             INSERT INTO planet_infos (war_id, planet_id, position_x, position_y, waypoints, sector, max_health, disabled, initial_faction_id)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
-            values = [(
-                war_id,
-                pi['planet_id'],
-                pi['position_x'],
-                pi['position_y'],
-                pi['waypoints'],
-                pi['sector'],
-                pi['max_health'],
-                pi['disabled'],
-                pi['initial_faction_id'],
-            ) for pi in planet_infos]
-            if values:
-                cursor.executemany(query, values)
+            for pi in planet_infos:
+                try:
+                    cursor.execute(query, (
+                        war_id,
+                        pi['planet_id'],
+                        pi['position_x'],
+                        pi['position_y'],
+                        pi['waypoints'],
+                        pi['sector'],
+                        pi['max_health'],
+                        pi['disabled'],
+                        pi['initial_faction_id'],
+                    ))
+                except mysql.connector.errors.IntegrityError as e:
+                    if e.errno == 1452:
+                        skipped.append({'planet_id': pi['planet_id'], 'error': str(e)})
+                    else:
+                        raise
             conn.commit()
+            return skipped
         except Exception as e:
             conn.rollback()
             raise
@@ -422,6 +444,22 @@ class DatabaseManager:
         except Exception as e:
             conn.rollback()
             raise
+        finally:
+            cursor.close()
+            conn.close()
+
+    # The Helldivers 2 API sometimes references planet_id 0 in war_info, planet_infos, or home_worlds.
+    # This planet does not exist in the real data, but must be present in the DB to satisfy foreign key constraints.
+    # We force-add planet_id 0 with name 'Unknown' to prevent ingestion failures.
+    def ensure_unknown_planet(self):
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        try:
+            cursor.execute("SELECT id FROM planets WHERE id = 0")
+            row = cursor.fetchone()
+            if not row:
+                cursor.execute("INSERT INTO planets (id, name, sector, liberation_status) VALUES (0, 'Unknown', 0, 'Unknown')")
+                conn.commit()
         finally:
             cursor.close()
             conn.close()

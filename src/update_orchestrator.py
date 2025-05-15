@@ -49,16 +49,24 @@ class UpdateOrchestrator:
         self.logger.info(f"Starting Helldivers 2 data update at {start_time}")
 
         results = {
+            'planets': False,
+            'campaign': False,
             'war_info': False,
             'war_status': False,
-            'planets': False,
             'news': False,
-            'campaign': False,
             'major_orders': False,
             'planet_history': False
         }
 
-        # Run fetchers in order
+        # Run fetchers in correct order
+        try:
+            results['planets'] = self.planet_fetcher.fetch_and_store()
+        except Exception as e:
+            self.logger.error(f"PlanetFetcher failed: {str(e)}")
+        try:
+            results['campaign'] = self.campaign_fetcher.fetch_and_store()
+        except Exception as e:
+            self.logger.error(f"CampaignFetcher failed: {str(e)}")
         try:
             results['war_info'] = self.war_info_fetcher.fetch_and_store()
         except Exception as e:
@@ -68,17 +76,9 @@ class UpdateOrchestrator:
         except Exception as e:
             self.logger.error(f"WarStatusFetcher failed: {str(e)}")
         try:
-            results['planets'] = self.planet_fetcher.fetch_and_store()
-        except Exception as e:
-            self.logger.error(f"PlanetFetcher failed: {str(e)}")
-        try:
             results['news'] = self.news_fetcher.fetch_and_store()
         except Exception as e:
             self.logger.error(f"NewsFetcher failed: {str(e)}")
-        try:
-            results['campaign'] = self.campaign_fetcher.fetch_and_store()
-        except Exception as e:
-            self.logger.error(f"CampaignFetcher failed: {str(e)}")
         try:
             results['major_orders'] = self.major_orders_fetcher.fetch_and_store()
         except Exception as e:

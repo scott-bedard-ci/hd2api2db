@@ -32,7 +32,7 @@ This project provides a robust, testable, and schedulable data pipeline for the 
 
 ---
 
-## 🏗️ Architecture
+## 🏗️ Architecture & Data Integrity
 
 ```
 +-------------------+      +-------------------+      +-------------------+
@@ -49,6 +49,36 @@ This project provides a robust, testable, and schedulable data pipeline for the 
 |                  Update Orchestrator & CLI                 |
 +------------------------------------------------------------+
 ```
+
+> **Note:**
+> The update process always fetches and upserts planets before war_info and planet_infos to ensure all foreign key constraints are satisfied. This prevents errors when inserting planet_infos that reference planets.
+
+- **Factions:**
+  - All factions referenced in campaigns are created with their real names during campaign ingestion.
+  - Any additional factions referenced only by ID in war_info (e.g., in planet_infos or home_worlds) are upserted with a placeholder name (e.g., 'Unknown (id)').
+  - This ensures all foreign key references to factions succeed, even if the name is not yet known.
+
+- **Planets:**
+  - All planets are ingested first.
+  - The pipeline force-adds a planet with id 0 and name 'Unknown' to handle API edge cases where planet_id 0 is referenced.
+  - This prevents foreign key errors for planet_id 0 in planet_infos and home_worlds.
+
+- **Ingestion Order:**
+  1. Planets
+  2. Campaigns (creates most factions)
+  3. war_info (ensures all referenced factions and planet_id 0 exist)
+  4. war_status
+  5. news
+  6. major_orders
+  7. planet_history
+
+- **Robustness:**
+  - The pipeline is robust to new/unknown factions and planet_id 0 from the API. Placeholder entries are created as needed and can be updated later when real data is available.
+
+## ❓ FAQ / Troubleshooting
+
+- **Why do I see 'Unknown' factions or planets in the database?**
+  - The pipeline creates placeholder entries for any referenced faction or planet that does not yet exist in the database. This is necessary to satisfy foreign key constraints and ensure ingestion does not fail when the API references new or unknown entities. These entries can be updated later when more information becomes available.
 
 ---
 
