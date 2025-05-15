@@ -5,11 +5,19 @@ from database_manager import DatabaseManager
 
 TABLES = [
     'planet_history',
+    'planet_status',
     'major_orders',
     'campaigns',
     'news',
     'war_status',
+    'planet_infos',
+    'home_worlds',
+    'war_info',
+    'planet_environmentals',
     'planets',
+    'biomes',
+    'environmentals',
+    'factions',
 ]
 
 def main():

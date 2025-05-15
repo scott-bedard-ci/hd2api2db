@@ -19,6 +19,7 @@ class PlanetFetcher:
 
             self.logger.info("Storing planet data")
             for planet in transformed_data:
+                print(f"Importing planet: {planet['name']}")
                 # 1. Biome
                 biome_id = None
                 if planet['biome'] and planet['biome']['slug']:

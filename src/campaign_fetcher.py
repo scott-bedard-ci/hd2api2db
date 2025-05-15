@@ -17,6 +17,7 @@ class CampaignFetcher:
 
             self.logger.info("Storing campaign data")
             for campaign in transformed_data:
+                print(f"Importing campaign: {campaign['name']}")
                 # 1. Biome
                 biome_id = None
                 if campaign['biome'] and campaign['biome']['slug']:

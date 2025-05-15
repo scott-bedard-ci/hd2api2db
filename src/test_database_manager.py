@@ -1,101 +1,52 @@
-import os
-os.environ['DB_NAME'] = 'helldivers2_test'
+import pytest
 from database_manager import DatabaseManager
-import datetime
 from test_utils import clean_test_db, assert_using_test_db
+import json
 
-def main():
-    assert_using_test_db()
-    clean_test_db()
+def test_upsert_planet():
     db = DatabaseManager()
+    planet_id = db.upsert_planet({'name': 'TestPlanet', 'sector': 1, 'liberation_status': 'Liberated'}, biome_id=1)
+    assert planet_id is not None
 
-    # Test upsert_planet
-    print('Testing upsert_planet...')
-    planet_data = {
-        'name': 'Super Earth',
-        'sector': 'Alpha',
-        'liberation_status': 'Liberated',
+def test_upsert_war_status():
+    db = DatabaseManager()
+    data = {
+        'war_status': {'war_id': 1, 'time': '2024-01-01 00:00:00', 'impact_multiplier': 1.0, 'story_beat_id32': 0, 'created_at': '2024-01-01 00:00:00'},
+        'planet_status': []
     }
-    db.upsert_planet(planet_data)
-    print('upsert_planet OK')
+    db.upsert_war_status(data)
 
-    # Test upsert_war_status
-    print('Testing upsert_war_status...')
-    db.upsert_war_status({
-        'war_status': {
-            'war_id': 801,
-            'time': '2024-06-01 12:00:00',
-            'impact_multiplier': 0.0128,
-            'story_beat_id32': 724770796,
-            'created_at': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-        },
-        'planet_status': [
-            {
-                'war_id': 801,
-                'planet_index': 0,
-                'owner': 1,
-                'health': 1000000,
-                'regen_per_second': 1388.8889,
-                'players': 649,
-                'position_x': 0.0,
-                'position_y': 0.0,
-            },
-            {
-                'war_id': 801,
-                'planet_index': 1,
-                'owner': 1,
-                'health': 1000000,
-                'regen_per_second': 1388.8889,
-                'players': 0,
-                'position_x': 0.05,
-                'position_y': 0.10,
-            }
-        ]
-    })
-    print('upsert_war_status OK')
+def test_upsert_news():
+    db = DatabaseManager()
+    news_data = {'id': 1, 'published': '2024-01-01 00:00:00', 'type': 'news', 'tagIds': '[]', 'message': 'Test', 'created_at': '2024-01-01 00:00:00'}
+    db.upsert_news(news_data)
 
-    # Test upsert_news
-    print('Testing upsert_news...')
-    db.upsert_news({
-        'id': 101,
-        'published': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-        'type': 'announcement',
-        'tagIds': '[1, 2, 3]',
-        'message': 'Helldivers unite!',
-        'created_at': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-    })
-    print('upsert_news OK')
+def test_upsert_campaign():
+    db = DatabaseManager()
+    campaign_data = {'name': 'Operation Freedom', 'planet_index': 1, 'defense': 100, 'expire_datetime': '2024-01-01 00:00:00', 'health': 100, 'max_health': 200, 'percentage': 50, 'players': 10}
+    db.upsert_campaign(campaign_data, biome_id=1, faction_id=1)
 
-    # Test upsert_campaign
-    print('Testing upsert_campaign...')
-    db.upsert_campaign({
-        'name': 'Operation Freedom',
-        'description': 'Free all planets.',
-        'start_date': datetime.date.today().strftime('%Y-%m-%d'),
-        'end_date': (datetime.date.today() + datetime.timedelta(days=7)).strftime('%Y-%m-%d'),
-    })
-    print('upsert_campaign OK')
+def test_upsert_major_order():
+    db = DatabaseManager()
+    major_order_data = {
+        'id32': 1,
+        'expires_in': 1000,
+        'expiry_time': '2024-01-01 00:00:00',
+        'progress': json.dumps({}),
+        'flags': 0,
+        'override_brief': '',
+        'override_title': '',
+        'reward': json.dumps({}),
+        'rewards': json.dumps([]),
+        'task_description': '',
+        'tasks': json.dumps([]),
+        'order_type': 0,
+        'created_at': '2024-01-01 00:00:00',
+        'updated_at': '2024-01-01 00:00:00'
+    }
+    db.upsert_major_order(major_order_data)
 
-    # Test upsert_major_order
-    print('Testing upsert_major_order...')
-    db.upsert_major_order({
-        'description': 'Defend Super Earth',
-        'target_planet_id': 1,
-        'expiry_time': (datetime.datetime.now() + datetime.timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S'),
-    })
-    print('upsert_major_order OK')
-
-    # Test upsert_planet_history
-    print('Testing upsert_planet_history...')
-    db.upsert_planet_history({
-        'planet_id': 1,
-        'timestamp': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-        'status': 'Liberated',
-    })
-    print('upsert_planet_history OK')
-
-    print('All DatabaseManager upsert tests passed!')
-    clean_test_db()
-
-if __name__ == '__main__':
-    main() 
+def test_upsert_planet_history():
+    db = DatabaseManager()
+    planet_history_data = {'planet_id': 1, 'timestamp': '2024-01-01 00:00:00', 'status': 'Liberated', 'current_health': 100, 'max_health': 200, 'player_count': 10}
+    db.upsert_planet_history(planet_history_data) 

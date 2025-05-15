@@ -17,6 +17,7 @@ class MajorOrdersFetcher:
 
             self.logger.info("Storing major orders data")
             for order in transformed_data:
+                print(f"Importing major order: id32={order['id32']} type={order['order_type']}")
                 self.db_manager.upsert_major_order(order)
 
             self.logger.info("Major orders data updated successfully")

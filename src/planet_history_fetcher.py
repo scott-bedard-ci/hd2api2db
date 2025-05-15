@@ -13,6 +13,7 @@ class PlanetHistoryFetcher:
             planets = self.api_client.get_planets()
             success_count = 0
             failure_count = 0
+            missing_planet_errors = []
 
             if isinstance(planets, dict):
                 items = planets.items()
@@ -28,14 +29,24 @@ class PlanetHistoryFetcher:
                     history_data = self.api_client.get_planet_history(planet_id)
                     transformed_data = self.transformer.transform(history_data, planet_id)
                     for entry in transformed_data:
-                        self.db_manager.upsert_planet_history(entry)
+                        result = self.db_manager.upsert_planet_history(entry)
+                        if result and 'missing_planet_id' in result:
+                            missing_planet_errors.append(result)
                     success_count += 1
                 except Exception as e:
                     self.logger.error(f"Error fetching history for planet {planet_id}: {str(e)}")
                     failure_count += 1
 
             self.logger.info(f"Planet history update completed. Success: {success_count}, Failures: {failure_count}")
-            return success_count > 0
+            if missing_planet_errors:
+                self.logger.warning(f"Missing planet_id errors encountered during ingestion:")
+                for err in missing_planet_errors:
+                    self.logger.warning(f"  planet_id={err['missing_planet_id']} context={err['context']} error={err['error']}")
+            return {
+                'success': success_count,
+                'failures': failure_count,
+                'missing_planet_errors': missing_planet_errors
+            }
         except Exception as e:
             self.logger.error(f"Error in planet history update process: {str(e)}")
             return False 

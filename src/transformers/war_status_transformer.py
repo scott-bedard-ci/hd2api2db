@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, UTC
 
 class WarStatusTransformer:
     @staticmethod
@@ -9,7 +9,7 @@ class WarStatusTransformer:
         # Convert 'time' from int (seconds since epoch) to MySQL DATETIME string
         time_raw = war_status_data.get('time')
         if isinstance(time_raw, int):
-            time_dt = datetime.utcfromtimestamp(time_raw)
+            time_dt = datetime.fromtimestamp(time_raw, tz=UTC)
             time_str = time_dt.strftime('%Y-%m-%d %H:%M:%S')
         else:
             time_str = str(time_raw)

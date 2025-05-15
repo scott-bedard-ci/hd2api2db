@@ -2,6 +2,7 @@ import os
 import mysql.connector
 from mysql.connector import pooling
 from dotenv import load_dotenv
+from mysql.connector import errors as mysql_errors
 
 load_dotenv()
 
@@ -234,6 +235,21 @@ class DatabaseManager:
                 planet_history_data['player_count'],
             ))
             conn.commit()
+            return None  # No error
+        except mysql_errors.IntegrityError as e:
+            conn.rollback()
+            # MySQL error code 1452: Cannot add or update a child row: a foreign key constraint fails
+            if e.errno == 1452:
+                return {
+                    'missing_planet_id': planet_history_data['planet_id'],
+                    'context': {
+                        'timestamp': planet_history_data.get('timestamp'),
+                        'status': planet_history_data.get('status'),
+                    },
+                    'error': str(e)
+                }
+            else:
+                raise
         except Exception as e:
             conn.rollback()
             raise

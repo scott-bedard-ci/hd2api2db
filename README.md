@@ -69,10 +69,10 @@ pip install -r requirements.txt
 - Install MySQL (e.g., via Homebrew: `brew install mysql`)
 - Start MySQL: `brew services start mysql`
 - Create a database and user (see below)
-- Run the migration:
+- Run the schema setup:
 
 ```bash
-mysql -u root -p < migrations/001_create_schema.sql
+mysql -u root -p < migrations/schema.sql
 ```
 
 ### 3. Configure
@@ -128,13 +128,11 @@ src/
   update_orchestrator.py        # Orchestrates full update
   main.py                       # CLI entrypoint
 migrations/
-  001_create_schema.sql         # MySQL schema
-  002_update_news_table.sql     # News table migration
-  003_rebuild_war_status_and_planet_status.sql  # Migration for war_status and planet_status tables
-  007_update_planet_history.sql  # Migration for planet_history table
+  schema.sql                    # Full MySQL schema (single source of truth)
 scripts/
   prd.txt                       # Product Requirements Document
   wipe_db.py                    # Script to wipe the database for a fresh pull
+  war_info_api_sample.txt       # Sample API response for War Info
 tests/
   test_*.py                     # Test scripts for all major modules
 ```
@@ -143,27 +141,39 @@ tests/
 
 ## 🧪 Testing
 
-Run all tests:
+This project uses `pytest` for all automated testing. The test suite is fully migrated to pytest and uses shared fixtures for database setup and cleanup, located in `src/conftest.py`. This ensures all tests use the correct test database credentials and are isolated and repeatable.
 
-```bash
-pytest tests/
-```
+### Test Categories
+- **fast**: Unit and functional tests that run quickly and do not require full integration (default for most tests).
+- **complete**: Full integration/orchestration tests (e.g., end-to-end pipeline tests). Only run when explicitly selected.
 
-Or run individual test scripts:
+### Running Tests
+- **Only fast tests:**
+  ```sh
+  pytest -m "not complete"
+  ```
+- **Only complete (integration) tests:**
+  ```sh
+  pytest -m complete
+  ```
+- **All tests:**
+  ```sh
+  pytest
+  ```
 
-```bash
-python tests/test_helldivers_api_client.py
-python tests/test_database_manager.py
-# ...etc
-```
+### Test Infrastructure
+- All test DB credentials and environment variables are managed via shared fixtures in `src/conftest.py`.
+- Test data is cleaned up before and after each test, ensuring a clean environment.
+- Tests marked with `@pytest.mark.no_db` skip DB setup/teardown (for config/env tests).
+- The orchestration/integration test is marked with `@pytest.mark.complete` and excluded from fast runs.
 
-### ⚠️ Test Database Safety & Cleanup
+### DRY Principle
+- All DB setup/teardown logic is centralized in `conftest.py`.
+- No duplicate fixture code in individual test files.
 
-- **All tests must use a dedicated test database** (e.g., `helldivers2_test`).
-- **Never run tests with production credentials or against the production database.**
-- **Safety check:** All test scripts will abort if the database name does not end with `_test`.
-- **Automatic cleanup:** Test scripts automatically clean up all test data before and after each run using a shared utility (`test_utils.py`).
-- This ensures no sample or mock data ever pollutes production, and test runs are always isolated and repeatable.
+### Additional Notes
+- See `pytest.ini` for marker definitions and usage.
+- The test suite is robust, maintainable, and safe for iterative development.
 
 ---
 
@@ -358,3 +368,130 @@ python src/main.py --help
 
 **Migration Note:**
 - The planet_history table was updated in `migrations/007_update_planet_history.sql` to add the fields `current_health`, `max_health`, and `player_count` to match the live API response. If you encounter foreign key errors during ingestion, ensure the referenced planet IDs exist in the `planets` table or perform a full DB rebuild. 
+
+**Error Reporting for Missing Planet IDs:**
+- During planet history ingestion, if a history entry references a `planet_id` that does not exist in the `planets` table, the pipeline now detects and aggregates these errors.
+- At the end of ingestion, a summary of all missing planet IDs (and their context) is logged for review.
+- This feature helps diagnose data integrity issues and ensures that ingestion failures due to missing foreign keys are visible and actionable.
+- See `src/test_planet_history_fetcher.py` for a test that verifies this error reporting behavior.
+
+### War Info Table Schema (as of migration 008)
+
+| Column                  | Type         | Description                                      |
+|------------------------|--------------|--------------------------------------------------|
+| war_id                 | INT (PK)     | War ID from API                                  |
+| start_date             | DATETIME     | War start date (converted from int timestamp)     |
+| end_date               | DATETIME     | War end date (converted from int timestamp)       |
+| layout_version         | INT          | Layout version from API                          |
+| minimum_client_version | VARCHAR(20)  | Minimum client version required                   |
+| capital_infos          | JSON         | Capital info objects (as JSON array)              |
+| planet_permanent_effects| JSON        | Permanent effects for planets (as JSON array)     |
+| created_at             | TIMESTAMP    | Row creation time                                |
+| updated_at             | TIMESTAMP    | Row update time                                  |
+
+**Migration Note:**
+- The war_info table was rebuilt in `migrations/008_rebuild_war_info_and_related.sql` to match the live API fields. Integer timestamps are converted to DATETIME. JSON columns are used for nested arrays/objects.
+
+### Planet Infos Table Schema (as of migration 008)
+
+| Column            | Type         | Description                                      |
+|-------------------|--------------|--------------------------------------------------|
+| war_id            | INT (FK)     | War ID, references war_info(war_id)              |
+| planet_id         | INT (FK)     | Planet ID, references planets(id)                |
+| position_x        | FLOAT        | X coordinate of planet position                  |
+| position_y        | FLOAT        | Y coordinate of planet position                  |
+| waypoints         | JSON         | List of waypoints (as JSON array)                |
+| sector            | INT          | Sector number                                    |
+| max_health        | BIGINT       | Maximum health of the planet                     |
+| disabled          | BOOLEAN      | Whether the planet is disabled                   |
+| initial_faction_id| INT (FK)     | Initial owner, references factions(id)           |
+| PRIMARY KEY       | (war_id, planet_id) | Composite PK for uniqueness                |
+
+### Home Worlds Table Schema (as of migration 008)
+
+| Column      | Type     | Description                                 |
+|-------------|----------|---------------------------------------------|
+| war_id      | INT (FK) | War ID, references war_info(war_id)         |
+| faction_id  | INT (FK) | Faction ID, references factions(id)         |
+| planet_id   | INT (FK) | Planet ID, references planets(id)           |
+| PRIMARY KEY | (war_id, faction_id, planet_id) | Composite PK       |
+
+**Migration Note:**
+- These tables were rebuilt in `migrations/008_rebuild_war_info_and_related.sql` to match the actual API response structure. All foreign keys and constraints are enforced.
+
+### War Info API Integration Details
+
+- The pipeline fetches the War Info API response and parses all top-level and nested fields.
+- Integer timestamps (`startDate`, `endDate`) are converted to MySQL DATETIME using timezone-aware conversion.
+- Nested arrays/objects (`capitalInfos`, `planetPermanentEffects`, `waypoints`) are stored as JSON.
+- The transformer logic is implemented in [`src/transformers/war_info_transformer.py`](src/transformers/war_info_transformer.py).
+- The fetch/store logic is in [`src/war_info_fetcher.py`](src/war_info_fetcher.py).
+
+#### Example War Info API Response
+
+See [`scripts/war_info_api_sample.txt`](scripts/war_info_api_sample.txt) for a full sample. Key fields:
+
+```json
+{
+  "warId": 801,
+  "startDate": 1833653095,
+  "endDate": 1834257895,
+  "layoutVersion": 40,
+  "minimumClientVersion": "0.3.0",
+  "capitalInfos": [...],
+  "planetPermanentEffects": [...],
+  "planetInfos": [
+    {
+      "index": 0,
+      "position": {"x": 0, "y": 0},
+      "waypoints": [],
+      "sector": 0,
+      "maxHealth": 1000000,
+      "disabled": false,
+      "initialOwner": 1
+    },
+    ...
+  ],
+  "homeWorlds": [
+    {"race": 1, "planetIndices": [0]},
+    {"race": 3, "planetIndices": [260]}
+  ]
+}
+```
+
+#### Field Mapping (API → DB)
+
+| API Field                | DB Table      | DB Column                |
+|--------------------------|--------------|--------------------------|
+| warId                    | war_info     | war_id                   |
+| startDate                | war_info     | start_date (DATETIME)    |
+| endDate                  | war_info     | end_date (DATETIME)      |
+| layoutVersion            | war_info     | layout_version           |
+| minimumClientVersion     | war_info     | minimum_client_version   |
+| capitalInfos             | war_info     | capital_infos (JSON)     |
+| planetPermanentEffects   | war_info     | planet_permanent_effects (JSON) |
+| planetInfos[].index      | planet_infos | planet_id                |
+| planetInfos[].position.x | planet_infos | position_x               |
+| planetInfos[].position.y | planet_infos | position_y               |
+| planetInfos[].waypoints  | planet_infos | waypoints (JSON)         |
+| planetInfos[].sector     | planet_infos | sector                   |
+| planetInfos[].maxHealth  | planet_infos | max_health               |
+| planetInfos[].disabled   | planet_infos | disabled                 |
+| planetInfos[].initialOwner| planet_infos| initial_faction_id       |
+| homeWorlds[].race        | home_worlds  | faction_id               |
+| homeWorlds[].planetIndices| home_worlds | planet_id (one row per)  |
+
+#### Testing & Validation
+
+- Unit and integration tests cover all transformer logic and DB upserts.
+- Migration scripts are tested in both live and test environments.
+- End-to-end tests verify that the pipeline correctly ingests, transforms, and stores all War Info data.
+- See `src/test_war_info_fetcher.py` for test coverage.
+
+#### Workflow Summary
+
+1. Fetch War Info API response.
+2. Transform and map all fields to the new schema.
+3. Store in `war_info`, `planet_infos`, and `home_worlds` tables.
+4. Validate with tests and manual DB inspection.
+5. Update documentation and migration notes as needed.

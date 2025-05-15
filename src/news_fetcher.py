@@ -17,6 +17,7 @@ class NewsFetcher:
 
             self.logger.info("Storing news data")
             for news in transformed_data:
+                print(f"Importing news: id={news['id']} type={news['type']}")
                 self.db_manager.upsert_news(news)
 
             self.logger.info("News data updated successfully")
