@@ -5,9 +5,7 @@ CREATE TABLE IF NOT EXISTS planets (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     sector VARCHAR(255),
-    region VARCHAR(255),
     liberation_status VARCHAR(100),
-    -- Add other relevant fields as needed
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

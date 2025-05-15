@@ -24,17 +24,15 @@ class DatabaseManager:
         cursor = conn.cursor()
         try:
             query = """
-            INSERT INTO planets (name, sector, region, liberation_status)
-            VALUES (%s, %s, %s, %s)
+            INSERT INTO planets (name, sector, liberation_status)
+            VALUES (%s, %s, %s)
             ON DUPLICATE KEY UPDATE
                 sector=VALUES(sector),
-                region=VALUES(region),
                 liberation_status=VALUES(liberation_status)
             """
             cursor.execute(query, (
                 planet_data['name'],
                 planet_data['sector'],
-                planet_data['region'],
                 planet_data['liberation_status'],
             ))
             conn.commit()
@@ -171,16 +169,40 @@ class DatabaseManager:
         cursor = conn.cursor()
         try:
             query = """
-            INSERT INTO major_orders (description, target_planet_id, expiry_time)
-            VALUES (%s, %s, %s)
+            INSERT INTO major_orders (
+                id32, expires_in, expiry_time, progress, flags, override_brief, override_title, reward, rewards, task_description, tasks, order_type, created_at, updated_at
+            ) VALUES (
+                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+            )
             ON DUPLICATE KEY UPDATE
-                target_planet_id=VALUES(target_planet_id),
-                expiry_time=VALUES(expiry_time)
+                expires_in=VALUES(expires_in),
+                expiry_time=VALUES(expiry_time),
+                progress=VALUES(progress),
+                flags=VALUES(flags),
+                override_brief=VALUES(override_brief),
+                override_title=VALUES(override_title),
+                reward=VALUES(reward),
+                rewards=VALUES(rewards),
+                task_description=VALUES(task_description),
+                tasks=VALUES(tasks),
+                order_type=VALUES(order_type),
+                updated_at=VALUES(updated_at)
             """
             cursor.execute(query, (
-                major_order_data['description'],
-                major_order_data['target_planet_id'],
+                major_order_data['id32'],
+                major_order_data['expires_in'],
                 major_order_data['expiry_time'],
+                major_order_data['progress'],
+                major_order_data['flags'],
+                major_order_data['override_brief'],
+                major_order_data['override_title'],
+                major_order_data['reward'],
+                major_order_data['rewards'],
+                major_order_data['task_description'],
+                major_order_data['tasks'],
+                major_order_data['order_type'],
+                major_order_data['created_at'],
+                major_order_data['updated_at'],
             ))
             conn.commit()
         except Exception as e:
@@ -195,15 +217,21 @@ class DatabaseManager:
         cursor = conn.cursor()
         try:
             query = """
-            INSERT INTO planet_history (planet_id, timestamp, status)
-            VALUES (%s, %s, %s)
+            INSERT INTO planet_history (planet_id, timestamp, status, current_health, max_health, player_count)
+            VALUES (%s, %s, %s, %s, %s, %s)
             ON DUPLICATE KEY UPDATE
-                status=VALUES(status)
+                status=VALUES(status),
+                current_health=VALUES(current_health),
+                max_health=VALUES(max_health),
+                player_count=VALUES(player_count)
             """
             cursor.execute(query, (
                 planet_history_data['planet_id'],
                 planet_history_data['timestamp'],
                 planet_history_data['status'],
+                planet_history_data['current_health'],
+                planet_history_data['max_health'],
+                planet_history_data['player_count'],
             ))
             conn.commit()
         except Exception as e:
@@ -287,6 +315,97 @@ class DatabaseManager:
             cursor.execute("INSERT INTO factions (name) VALUES (%s)", (name,))
             conn.commit()
             return cursor.lastrowid
+        finally:
+            cursor.close()
+            conn.close()
+
+    def upsert_war_info(self, war_info_data):
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        try:
+            query = """
+            INSERT INTO war_info (war_id, start_date, end_date, layout_version, minimum_client_version, capital_infos, planet_permanent_effects, created_at, updated_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, NOW(), NOW())
+            ON DUPLICATE KEY UPDATE
+                start_date=VALUES(start_date),
+                end_date=VALUES(end_date),
+                layout_version=VALUES(layout_version),
+                minimum_client_version=VALUES(minimum_client_version),
+                capital_infos=VALUES(capital_infos),
+                planet_permanent_effects=VALUES(planet_permanent_effects),
+                updated_at=NOW()
+            """
+            cursor.execute(query, (
+                war_info_data['war_id'],
+                war_info_data['start_date'],
+                war_info_data['end_date'],
+                war_info_data['layout_version'],
+                war_info_data['minimum_client_version'],
+                war_info_data['capital_infos'],
+                war_info_data['planet_permanent_effects'],
+            ))
+            conn.commit()
+        except Exception as e:
+            conn.rollback()
+            raise
+        finally:
+            cursor.close()
+            conn.close()
+
+    def upsert_planet_infos(self, war_id, planet_infos):
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        try:
+            # Delete existing planet_infos for this war_id
+            cursor.execute("DELETE FROM planet_infos WHERE war_id = %s", (war_id,))
+            # Bulk insert new planet_infos
+            query = """
+            INSERT INTO planet_infos (war_id, planet_id, position_x, position_y, waypoints, sector, max_health, disabled, initial_faction_id)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """
+            values = [(
+                war_id,
+                pi['planet_id'],
+                pi['position_x'],
+                pi['position_y'],
+                pi['waypoints'],
+                pi['sector'],
+                pi['max_health'],
+                pi['disabled'],
+                pi['initial_faction_id'],
+            ) for pi in planet_infos]
+            if values:
+                cursor.executemany(query, values)
+            conn.commit()
+        except Exception as e:
+            conn.rollback()
+            raise
+        finally:
+            cursor.close()
+            conn.close()
+
+    def upsert_home_worlds(self, war_id, home_worlds):
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        try:
+            # Delete existing home_worlds for this war_id
+            cursor.execute("DELETE FROM home_worlds WHERE war_id = %s", (war_id,))
+            # Bulk insert new home_worlds
+            query = """
+            INSERT INTO home_worlds (war_id, faction_id, planet_id)
+            VALUES (%s, %s, %s)
+            """
+            values = [(
+                war_id,
+                hw['faction_id'],
+                hw['planet_id'],
+            ) for hw in home_worlds]
+            if values:
+                cursor.executemany(query, values)
+            conn.commit()
+        except Exception as e:
+            conn.rollback()
+            raise
         finally:
             cursor.close()
             conn.close()

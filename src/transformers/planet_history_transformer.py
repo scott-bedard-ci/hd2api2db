@@ -10,7 +10,9 @@ class PlanetHistoryTransformer:
                 'planet_id': planet_id or entry.get('planetId'),
                 'timestamp': entry.get('timestamp', datetime.now().strftime('%Y-%m-%d %H:%M:%S')),
                 'status': entry.get('status'),
-                # Add other fields as needed based on your schema
+                'current_health': entry.get('current_health'),
+                'max_health': entry.get('max_health'),
+                'player_count': entry.get('player_count'),
                 'created_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             }
             transformed_history.append(transformed_item)

@@ -131,6 +131,7 @@ migrations/
   001_create_schema.sql         # MySQL schema
   002_update_news_table.sql     # News table migration
   003_rebuild_war_status_and_planet_status.sql  # Migration for war_status and planet_status tables
+  007_update_planet_history.sql  # Migration for planet_history table
 scripts/
   prd.txt                       # Product Requirements Document
   wipe_db.py                    # Script to wipe the database for a fresh pull
@@ -341,3 +342,19 @@ python src/main.py --help
 
 **Migration Note:**
 - The war_status and planet_status tables were rebuilt in `migrations/003_rebuild_war_status_and_planet_status.sql` to match the live API fields. `war_id` is the primary key for war_status and a foreign key in planet_status. The planet_status table uses a composite primary key (`war_id`, `planet_index`). 
+
+### Planet History Table Schema (as of migration 007)
+
+| Column         | Type         | Description                                 |
+|---------------|--------------|---------------------------------------------|
+| id            | INT (PK)     | Auto-incremented row ID                     |
+| planet_id     | INT (FK)     | Planet ID, references planets(id)           |
+| timestamp     | DATETIME     | Event timestamp                             |
+| status        | VARCHAR(100) | Status of the planet at this time           |
+| current_health| BIGINT       | Current health of the planet                |
+| max_health    | BIGINT       | Maximum health of the planet                |
+| player_count  | INT          | Number of players present                   |
+| created_at    | TIMESTAMP    | Row creation time                           |
+
+**Migration Note:**
+- The planet_history table was updated in `migrations/007_update_planet_history.sql` to add the fields `current_health`, `max_health`, and `player_count` to match the live API response. If you encounter foreign key errors during ingestion, ensure the referenced planet IDs exist in the `planets` table or perform a full DB rebuild. 

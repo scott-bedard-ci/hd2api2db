@@ -11,12 +11,12 @@ def main():
 
     # Test upsert_planet
     print('Testing upsert_planet...')
-    db.upsert_planet({
+    planet_data = {
         'name': 'Super Earth',
         'sector': 'Alpha',
-        'region': 'North',
         'liberation_status': 'Liberated',
-    })
+    }
+    db.upsert_planet(planet_data)
     print('upsert_planet OK')
 
     # Test upsert_war_status

@@ -14,6 +14,8 @@ from news_fetcher import NewsFetcher
 from campaign_fetcher import CampaignFetcher
 from major_orders_fetcher import MajorOrdersFetcher
 from planet_history_fetcher import PlanetHistoryFetcher
+from transformers.war_info_transformer import WarInfoTransformer
+from war_info_fetcher import WarInfoFetcher
 
 class UpdateOrchestrator:
     def __init__(self, config):
@@ -31,6 +33,7 @@ class UpdateOrchestrator:
         self.campaign_transformer = CampaignTransformer()
         self.major_orders_transformer = MajorOrderTransformer()
         self.planet_history_transformer = PlanetHistoryTransformer()
+        self.war_info_transformer = WarInfoTransformer()
 
         # Initialize fetchers
         self.war_status_fetcher = WarStatusFetcher(self.api_client, self.war_status_transformer, self.db_manager)
@@ -39,12 +42,14 @@ class UpdateOrchestrator:
         self.campaign_fetcher = CampaignFetcher(self.api_client, self.campaign_transformer, self.db_manager)
         self.major_orders_fetcher = MajorOrdersFetcher(self.api_client, self.major_orders_transformer, self.db_manager)
         self.planet_history_fetcher = PlanetHistoryFetcher(self.api_client, self.planet_history_transformer, self.db_manager)
+        self.war_info_fetcher = WarInfoFetcher(self.api_client, self.db_manager)
 
     def run_update(self):
         start_time = datetime.now()
         self.logger.info(f"Starting Helldivers 2 data update at {start_time}")
 
         results = {
+            'war_info': False,
             'war_status': False,
             'planets': False,
             'news': False,
@@ -54,6 +59,10 @@ class UpdateOrchestrator:
         }
 
         # Run fetchers in order
+        try:
+            results['war_info'] = self.war_info_fetcher.fetch_and_store()
+        except Exception as e:
+            self.logger.error(f"WarInfoFetcher failed: {str(e)}")
         try:
             results['war_status'] = self.war_status_fetcher.fetch_and_store()
         except Exception as e:
