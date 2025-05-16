@@ -1,0 +1,55 @@
+# Task ID: 12
+# Title: Task #12: Implement Test Data Cleanup with Setup and Teardown Logic
+# Status: done
+# Dependencies: None
+# Priority: high
+# Description: Add setup and teardown logic to all test scripts to clean up test data by truncating or deleting from all relevant tables before and after each test execution, ensuring a clean test environment.
+# Details:
+This task involves modifying all existing test scripts to include proper setup and teardown procedures:
+
+1. Identify all tables in the helldivers2_test database that are modified during tests.
+2. Create a common utility module (e.g., test_cleanup.py) that contains functions for:
+   - Truncating specific tables
+   - Deleting specific test data based on identifiers
+   - Resetting sequences/auto-increment values if necessary
+3. Implement setup functions that run before each test to ensure a clean starting state:
+   - Should truncate or clean relevant tables
+   - May need to insert baseline/fixture data required by tests
+4. Implement teardown functions that run after each test completes:
+   - Should remove all test data created during the test
+   - Should verify no residual data remains
+5. Modify the test framework to automatically call these setup/teardown functions:
+   - If using pytest, implement fixtures or use setup/teardown hooks
+   - If using unittest, implement setUp() and tearDown() methods
+6. Update documentation to explain the test data cleanup approach
+7. Ensure the cleanup logic works with both individual test runs and full test suite execution
+
+Consider implementing transaction rollbacks where appropriate to improve test performance instead of deleting data after each test. Also ensure that the cleanup logic is robust enough to handle test failures without leaving the database in an inconsistent state.
+
+# Test Strategy:
+To verify this task has been completed successfully:
+
+1. Code Review:
+   - Confirm all test files include appropriate setup/teardown logic
+   - Verify the cleanup utility functions are comprehensive and handle all tables
+   - Check that error handling is in place for cleanup failures
+
+2. Manual Testing:
+   - Run individual tests and inspect the database before and after execution
+   - Verify no test data remains in any tables after test completion
+   - Intentionally cause a test to fail and verify cleanup still occurs
+
+3. Automated Verification:
+   - Create a meta-test that runs after the test suite completes
+   - This meta-test should check all relevant tables for any remaining test data
+   - It should fail if any test artifacts are found in the database
+
+4. Performance Testing:
+   - Measure test execution time before and after implementing cleanup logic
+   - Ensure the cleanup approach doesn't significantly slow down the test suite
+   - If performance issues are found, consider optimizing with bulk operations or transactions
+
+5. Integration Testing:
+   - Verify that tests can be run in any order without interference
+   - Run the full test suite multiple times in succession to ensure consistent results
+   - Confirm tests work correctly when run in parallel (if applicable)

@@ -1,0 +1,114 @@
+# Task ID: 21
+# Title: Task #21: Rebuild Planet History API Integration to Match Actual API Response Structure
+# Status: done
+# Dependencies: None
+# Priority: high
+# Description: Update the database schema, import scripts, and related components to correctly handle the actual structure of the planet history API response, ensuring all fields are properly stored and retrieved.
+# Details:
+This task involves a comprehensive rebuild of the Planet History API integration to align with the actual API response structure. Key implementation steps include:
+
+1. Analyze the actual Planet History API response structure to identify all fields, data types, and relationships.
+   - Analysis complete: API response includes created_at (ISO timestamp), current_health (int), max_health (int), planet_index (int), player_count (int)
+
+2. Update the database schema to accommodate the actual response structure:
+   - Create a migration script (007_update_planet_history.sql) using ALTER TABLE statements to add the following columns:
+     * current_health (BIGINT)
+     * max_health (BIGINT)
+     * player_count (INT)
+   - Ensure proper field types and constraints are defined
+   - Add appropriate indexes for performance optimization
+   - Migration script has been prepared and is ready for execution on both live and test databases
+
+3. Update the data import scripts to:
+   - Parse all fields from the API response correctly
+   - Implement a transformer to handle data type conversions
+   - Check for integer timestamp fields and convert them to MySQL DATETIME strings
+   - Handle any nested data structures appropriately
+
+4. Update related components:
+   - Modify service layer methods that interact with Planet History data
+   - Update repository/data access layer to reflect new schema
+   - Adjust any controllers or endpoints that expose Planet History data
+
+5. Update documentation:
+   - Update API documentation to reflect new data structure
+   - Document the database schema changes
+   - Update any developer guides related to Planet History data
+
+6. Ensure backward compatibility where possible, or document breaking changes clearly.
+
+7. Follow the established patterns from previous API integration rebuilds (Tasks 18-20) for consistency across the codebase.
+
+# Test Strategy:
+The testing strategy should verify that the Planet History API integration correctly handles the actual API response structure:
+
+1. Unit Tests:
+   - Test the transformer functions to ensure proper conversion of integer timestamps to MySQL DATETIME strings
+   - Test data mapping functions to verify all fields are correctly mapped (created_at, current_health, max_health, planet_index, player_count)
+   - Test repository methods for CRUD operations on the updated schema
+
+2. Integration Tests:
+   - Create tests with mock API responses that match the actual structure
+   - Verify the entire import process works end-to-end
+   - Test that all fields are correctly stored in the database
+   - Verify that retrieved data maintains integrity and matches the original API data
+
+3. Database Tests:
+   - Verify the migration script (007_update_planet_history.sql) executes without errors on both live and test databases
+   - Confirm the schema matches the expected structure after migration
+   - Test queries against the new schema for performance
+   - Verify that the new columns (current_health, max_health, player_count) are properly added and can store the expected data types
+
+4. API Tests:
+   - Test any endpoints that expose Planet History data
+   - Verify the response format matches documentation
+   - Test edge cases like missing fields or null values
+
+5. Manual Testing:
+   - Perform a complete import of real Planet History data
+   - Verify data integrity through admin interface or reporting tools
+   - Check for any performance issues with large datasets
+
+6. Regression Testing:
+   - Ensure other system components that depend on Planet History data continue to function correctly
+   - Verify that the changes don't negatively impact related features
+
+Document all test results and any issues encountered during testing.
+
+# Subtasks:
+## 21.1. Create migration script 007_update_planet_history.sql [done]
+### Dependencies: None
+### Description: Create a migration script to update the planet_history table by adding current_health (BIGINT), max_health (BIGINT), and player_count (INT) columns to match the actual API response structure.
+### Details:
+
+
+## 21.2. Run migration to update schema [done]
+### Dependencies: None
+### Description: Execute the prepared migration script on both live and test databases to update the planet_history table schema with the new columns (current_health, max_health, player_count).
+### Details:
+
+
+## 21.3. Update data import scripts [done]
+### Dependencies: None
+### Description: Modify the import scripts to correctly parse and store the additional fields from the API response (current_health, max_health, player_count).
+### Details:
+
+
+## 21.4. Update service and repository layers [done]
+### Dependencies: None
+### Description: Update the service and repository layers to handle the new fields in the planet_history table.
+### Details:
+
+
+## 21.5. Update documentation [done]
+### Dependencies: None
+### Description: Update API documentation and developer guides to reflect the changes to the planet_history table schema.
+### Details:
+
+
+## 21.6. Implement and run tests [done]
+### Dependencies: None
+### Description: Create and execute tests to verify the updated schema and import process work correctly with the actual API response structure.
+### Details:
+
+

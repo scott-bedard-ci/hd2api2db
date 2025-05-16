@@ -1,0 +1,71 @@
+# Task ID: 22
+# Title: Task #22: Rebuild War Info API Integration to Match Actual API Response Structure
+# Status: done
+# Dependencies: None
+# Priority: high
+# Description: Update the database schema, import scripts, and related components to correctly handle the actual structure of the war info API response, ensuring all fields are properly stored and retrieved.
+# Details:
+This task involves a comprehensive rebuild of the War Info API integration to align with the actual API response structure. The implementation should follow these steps:
+
+1. Analyze the actual War Info API response structure to identify all fields, data types, and relationships.
+2. Update the database schema to accommodate the actual structure:
+   - Create a migration script using the drop-and-rebuild approach (reference Task #16)
+   - Ensure proper field types and constraints are defined
+   - Add appropriate indexes for performance optimization
+
+3. Update the data transformer:
+   - Identify and convert integer timestamp fields to MySQL DATETIME strings
+   - Handle any nested objects or arrays appropriately
+   - Implement proper error handling for missing or malformed fields
+
+4. Modify the import scripts to:
+   - Parse the API response correctly
+   - Transform data according to the updated schema
+   - Validate data before insertion
+   - Log any errors or inconsistencies
+
+5. Update related components:
+   - Adjust any services or controllers that interact with war info data
+   - Update data access objects or repositories
+   - Modify any caching mechanisms if applicable
+
+6. Update API documentation to reflect the new structure and field definitions.
+
+7. Follow the established project patterns for error handling, logging, and performance considerations.
+
+Note: Pay special attention to integer timestamp fields in the API response, as these need to be properly converted to MySQL DATETIME format in the transformer.
+
+# Test Strategy:
+To verify the successful completion of this task, implement the following testing strategy:
+
+1. Unit Tests:
+   - Test the data transformer to ensure proper conversion of integer timestamps to DATETIME strings
+   - Verify correct handling of all fields in the API response
+   - Test edge cases such as missing fields, null values, and unexpected data types
+
+2. Integration Tests:
+   - Create tests that simulate API responses with sample data
+   - Verify the entire pipeline from API response to database storage
+   - Test the retrieval of stored data to ensure it matches the original API response
+
+3. Database Verification:
+   - Execute the migration script in a test environment
+   - Verify the schema matches the expected structure
+   - Check constraints, indexes, and relationships
+
+4. Manual Testing:
+   - Perform a complete end-to-end test with real API data
+   - Verify all fields are correctly stored and retrieved
+   - Compare the stored data with the original API response
+
+5. Documentation Review:
+   - Ensure API documentation is updated to reflect the new structure
+   - Verify code comments are clear and accurate
+
+6. Performance Testing:
+   - Measure query performance for common operations
+   - Verify that large datasets can be processed efficiently
+
+7. Regression Testing:
+   - Ensure that other components dependent on war info data continue to function correctly
+   - Verify that the changes don't negatively impact existing functionality

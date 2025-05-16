@@ -1,0 +1,332 @@
+# Task ID: 20
+# Title: Task #20: Rebuild Major Orders API Integration to Match Actual API Response Structure
+# Status: done
+# Dependencies: None
+# Priority: high
+# Description: Update the database schema, import scripts, and related components to correctly handle the actual structure of the major orders API response, ensuring all fields are properly stored and retrieved.
+# Details:
+This task involves a comprehensive rebuild of the Major Orders API integration to align with the actual API response structure. The implementation should follow these steps:
+
+1. Analyze the actual Major Orders API response structure to identify all fields, data types, and relationships.
+2. Update the database schema using the drop-and-rebuild migration approach (as in Task #16) to accommodate the actual structure.
+3. Modify the import scripts to correctly parse and process the API response data.
+4. Implement data transformations where necessary, particularly checking for integer timestamp fields and converting them to MySQL DATETIME strings in the transformer.
+5. Update any related components that interact with Major Orders data, including:
+   - Data access layers
+   - Service classes
+   - Controllers
+   - View models
+6. Ensure proper error handling for potential API response variations.
+7. Update the API documentation to reflect the changes.
+8. Maintain backward compatibility where possible, or document breaking changes.
+9. Implement appropriate logging for debugging and monitoring purposes.
+10. Update any caching mechanisms if applicable.
+
+The implementation should prioritize data integrity and performance while ensuring all fields from the API response are correctly mapped to the database schema.
+
+# Test Strategy:
+To verify the successful completion of this task, the following testing approach should be implemented:
+
+1. Unit Tests:
+   - Create unit tests for the data transformer to verify correct handling of integer timestamps to MySQL DATETIME conversions.
+   - Test the import scripts with mock API responses to ensure proper parsing.
+   - Verify error handling for edge cases (missing fields, null values, etc.).
+
+2. Integration Tests:
+   - Test the complete flow from API response to database storage using sample responses.
+   - Verify that all fields are correctly stored and can be retrieved with proper types.
+   - Test the migration process to ensure it correctly rebuilds the schema without data loss.
+
+3. Manual Testing:
+   - Compare the actual API response structure with the database schema to ensure alignment.
+   - Verify that the application correctly displays all Major Orders data.
+   - Test with real API endpoints to ensure compatibility.
+
+4. Regression Testing:
+   - Ensure that existing functionality that depends on Major Orders data continues to work.
+   - Verify that reports or dashboards using this data display correctly.
+
+5. Documentation Verification:
+   - Review updated documentation for accuracy and completeness.
+   - Ensure API documentation reflects the actual structure and field mappings.
+
+6. Performance Testing:
+   - Measure import times for large datasets to ensure acceptable performance.
+   - Verify that database queries remain efficient after schema changes.
+
+# Subtasks:
+## 1. Analyze Major Orders API Response Structure [done]
+### Dependencies: None
+### Description: Document the actual API response structure including all fields, data types, and relationships to guide the rebuild process.
+### Details:
+Make API calls to the Major Orders endpoint and capture sample responses. Create a comprehensive mapping document that identifies all fields, their data types, nesting structure, and relationships. Pay special attention to timestamp fields that may need conversion. Compare the actual structure with the current implementation to identify gaps and discrepancies. Document any inconsistencies or edge cases in the API response that will need special handling.
+<info added on 2025-05-14T23:31:54.057Z>
+Make API calls to the Major Orders endpoint and capture sample responses. Create a comprehensive mapping document that identifies all fields, their data types, nesting structure, and relationships. Pay special attention to timestamp fields that may need conversion. Compare the actual structure with the current implementation to identify gaps and discrepancies. Document any inconsistencies or edge cases in the API response that will need special handling.
+
+The Major Orders API integration is located in the following components:
+- API call: Helldivers2ApiClient.get_major_orders() (src/helldivers_api_client.py)
+- Fetch/store logic: MajorOrdersFetcher (src/major_orders_fetcher.py)
+- Data transformation: MajorOrderTransformer (src/transformers/major_order_transformer.py)
+- Database upsert: DatabaseManager.upsert_major_order (src/database_manager.py)
+
+Sample API response structure:
+```
+[
+  {
+    'expiresIn': 466580,
+    'id32': 2814891206,
+    'progress': [1, 1, 1],
+    'setting': {
+      'flags': 1,
+      'overrideBrief': 'Slow the Illuminate advance while inflicting as much damage to the Fleet as possible.',
+      'overrideTitle': 'MAJOR ORDER',
+      'reward': {'amount': 50, 'id32': 897894480, 'type': 1},
+      'rewards': [{'amount': 50, 'id32': 897894480, 'type': 1}],
+      'taskDescription': '',
+      'tasks': [
+        {'type': 13, 'valueTypes': [3, 11, 12], 'values': [1, 1, 3]},
+        {'type': 13, 'valueTypes': [3, 11, 12], 'values': [1, 1, 5]},
+        {'type': 13, 'valueTypes': [3, 11, 12], 'values': [1, 1, 4]}
+      ],
+      'type': 4
+    }
+  }
+]
+```
+
+Field mapping and data types:
+- Top-level fields:
+  - expiresIn (integer): Time remaining in seconds
+  - id32 (integer): Unique identifier for the order
+  - progress (array of integers): Completion status for each task
+  - setting (object): Contains detailed configuration of the order
+
+- setting object:
+  - flags (integer): Configuration flags
+  - overrideBrief (string): Description text of the order
+  - overrideTitle (string): Title of the order
+  - reward (object): Primary reward information
+  - rewards (array of objects): List of all rewards
+  - taskDescription (string): Additional task description
+  - tasks (array of objects): List of specific tasks to complete
+  - type (integer): Type identifier for the order
+
+- reward/rewards objects:
+  - amount (integer): Quantity of the reward
+  - id32 (integer): Identifier for the reward type
+  - type (integer): Category of reward
+
+- tasks objects:
+  - type (integer): Task type identifier
+  - valueTypes (array of integers): Identifiers for value types
+  - values (array of integers): Specific values for the task
+
+Next steps:
+1. Compare this structure to the current database schema to identify mismatches
+2. Document field transformations needed (e.g., expiresIn to expiry_time)
+3. Determine how to handle nested objects and arrays in the database
+4. Identify any missing fields in the current implementation
+5. Document the meaning of enumerated values (type, flags, etc.)
+</info added on 2025-05-14T23:31:54.057Z>
+<info added on 2025-05-14T23:33:01.407Z>
+Make API calls to the Major Orders endpoint and capture sample responses. Create a comprehensive mapping document that identifies all fields, their data types, nesting structure, and relationships. Pay special attention to timestamp fields that may need conversion. Compare the actual structure with the current implementation to identify gaps and discrepancies. Document any inconsistencies or edge cases in the API response that will need special handling.
+
+<info added on 2025-05-14T23:31:54.057Z>
+Make API calls to the Major Orders endpoint and capture sample responses. Create a comprehensive mapping document that identifies all fields, their data types, nesting structure, and relationships. Pay special attention to timestamp fields that may need conversion. Compare the actual structure with the current implementation to identify gaps and discrepancies. Document any inconsistencies or edge cases in the API response that will need special handling.
+
+The Major Orders API integration is located in the following components:
+- API call: Helldivers2ApiClient.get_major_orders() (src/helldivers_api_client.py)
+- Fetch/store logic: MajorOrdersFetcher (src/major_orders_fetcher.py)
+- Data transformation: MajorOrderTransformer (src/transformers/major_order_transformer.py)
+- Database upsert: DatabaseManager.upsert_major_order (src/database_manager.py)
+
+Sample API response structure:
+```
+[
+  {
+    'expiresIn': 466580,
+    'id32': 2814891206,
+    'progress': [1, 1, 1],
+    'setting': {
+      'flags': 1,
+      'overrideBrief': 'Slow the Illuminate advance while inflicting as much damage to the Fleet as possible.',
+      'overrideTitle': 'MAJOR ORDER',
+      'reward': {'amount': 50, 'id32': 897894480, 'type': 1},
+      'rewards': [{'amount': 50, 'id32': 897894480, 'type': 1}],
+      'taskDescription': '',
+      'tasks': [
+        {'type': 13, 'valueTypes': [3, 11, 12], 'values': [1, 1, 3]},
+        {'type': 13, 'valueTypes': [3, 11, 12], 'values': [1, 1, 5]},
+        {'type': 13, 'valueTypes': [3, 11, 12], 'values': [1, 1, 4]}
+      ],
+      'type': 4
+    }
+  }
+]
+```
+
+Field mapping and data types:
+- Top-level fields:
+  - expiresIn (integer): Time remaining in seconds
+  - id32 (integer): Unique identifier for the order
+  - progress (array of integers): Completion status for each task
+  - setting (object): Contains detailed configuration of the order
+
+- setting object:
+  - flags (integer): Configuration flags
+  - overrideBrief (string): Description text of the order
+  - overrideTitle (string): Title of the order
+  - reward (object): Primary reward information
+  - rewards (array of objects): List of all rewards
+  - taskDescription (string): Additional task description
+  - tasks (array of objects): List of specific tasks to complete
+  - type (integer): Type identifier for the order
+
+- reward/rewards objects:
+  - amount (integer): Quantity of the reward
+  - id32 (integer): Identifier for the reward type
+  - type (integer): Category of reward
+
+- tasks objects:
+  - type (integer): Task type identifier
+  - valueTypes (array of integers): Identifiers for value types
+  - values (array of integers): Specific values for the task
+
+Next steps:
+1. Compare this structure to the current database schema to identify mismatches
+2. Document field transformations needed (e.g., expiresIn to expiry_time)
+3. Determine how to handle nested objects and arrays in the database
+4. Identify any missing fields in the current implementation
+5. Document the meaning of enumerated values (type, flags, etc.)
+</info added on 2025-05-14T23:31:54.057Z>
+
+<info added on 2025-05-15T10:45:22.000Z>
+## API Response vs Current Implementation Gap Analysis
+
+### Current Implementation Limitations
+1. **Transformer Limitations (src/transformers/major_order_transformer.py)**:
+   - Only maps 4 fields: description, target_planet_id, expiry_time, created_at
+   - No handling for nested objects or arrays
+   - No mapping for the API's unique identifier (id32)
+
+2. **Database Schema Limitations (migrations/004_rebuild_planets_and_lookups.sql)**:
+   - Limited to 5 columns: id, description, target_planet_id, expiry_time, created_at
+   - No storage for progress tracking, tasks, rewards, or other metadata
+   - Uses auto-increment ID instead of the API's id32 as primary identifier
+
+3. **Missing Field Mappings**:
+   - expiresIn: Not properly converted to expiry_time (seconds vs. DATETIME)
+   - id32: API's unique identifier not preserved
+   - progress: Task completion status array not stored
+   - setting.flags: Configuration flags not stored
+   - setting.overrideBrief: Likely the source for "description" but not explicitly mapped
+   - setting.overrideTitle: Title information lost
+   - setting.reward/rewards: Reward information not stored
+   - setting.taskDescription: Additional task details lost
+   - setting.tasks: Task definitions and requirements not stored
+   - setting.type: Order type classification not stored
+
+### Data Transformation Issues
+- Time representation: expiresIn (seconds) needs conversion to absolute datetime
+- Nested objects require flattening or JSON serialization
+- Arrays (progress, tasks, rewards) need proper handling
+- Enumerated values (type, flags) need interpretation and documentation
+
+### Schema Redesign Considerations
+- Need to preserve API's unique identifier (id32)
+- Consider JSON columns for complex nested structures
+- Possible related tables for tasks and rewards
+- Add missing metadata fields (title, type, flags)
+- Ensure proper indexing for query performance
+
+This analysis confirms the need for a complete rebuild of the Major Orders integration to properly capture and utilize the full API response structure. The next subtask (20.2: Update Database Schema for Major Orders) should address these gaps with a comprehensive schema redesign.
+</info added on 2025-05-15T10:45:22.000Z>
+</info added on 2025-05-14T23:33:01.407Z>
+
+## 2. Update Database Schema for Major Orders [done]
+### Dependencies: 20.1
+### Description: Redesign and implement the database schema to properly store all fields from the actual API response.
+### Details:
+Create a drop-and-rebuild migration (similar to Task #16) that aligns the database schema with the actual API response structure. Define appropriate column types, indexes, and constraints. Ensure proper handling of timestamp fields, converting integer timestamps to MySQL DATETIME format where needed. Consider performance implications for queries and implement appropriate indexing strategies. Document the schema changes thoroughly for future reference.
+<info added on 2025-05-14T23:39:50.640Z>
+Create a drop-and-rebuild migration (similar to Task #16) that aligns the database schema with the actual API response structure. Define appropriate column types, indexes, and constraints. Ensure proper handling of timestamp fields, converting integer timestamps to MySQL DATETIME format where needed. Consider performance implications for queries and implement appropriate indexing strategies. Document the schema changes thoroughly for future reference.
+
+The approved schema for the major_orders table will include:
+
+- id32 (BIGINT PRIMARY KEY): API's unique identifier
+- expires_in (INT): Raw seconds from API
+- expiry_time (DATETIME): Calculated from expiresIn + fetch time
+- progress (JSON): Array of progress values
+- flags (INT): From setting.flags
+- override_brief (TEXT): From setting.overrideBrief
+- override_title (VARCHAR(255)): From setting.overrideTitle
+- reward (JSON): Main reward object
+- rewards (JSON): Array of reward objects
+- task_description (TEXT): From setting.taskDescription
+- tasks (JSON): Array of task objects
+- order_type (INT): From setting.type
+- created_at (TIMESTAMP): Record creation time
+- updated_at (TIMESTAMP): Last update time
+
+The schema will include indexes on expiry_time and order_type columns to optimize query performance. All nested and complex data structures from the API will be stored as JSON fields for maximum flexibility and to accommodate potential future changes to the API structure.
+
+The migration will completely drop and recreate the table, which is acceptable for this implementation. After completing the schema design, the next steps will be to draft the migration SQL and update the data transformer to properly map API response fields to this new database structure.
+</info added on 2025-05-14T23:39:50.640Z>
+
+## 3. Modify Import Scripts and Data Transformers [done]
+### Dependencies: 20.1, 20.2
+### Description: Update the import scripts to correctly parse, transform, and store the API response data in the new database schema.
+### Details:
+Refactor the import scripts to handle the actual API response structure. Implement data transformations for all fields, with special attention to timestamp conversions from integer to DATETIME format. Add validation logic to ensure data integrity during import. Implement error handling for missing or malformed fields in the API response. Create unit tests for the transformation logic to verify correct handling of various data scenarios. Optimize the import process for performance, especially for large data sets.
+<info added on 2025-05-14T23:50:04.287Z>
+The import pipeline for Major Orders consists of three main components:
+
+1. MajorOrdersFetcher (src/major_orders_fetcher.py) - Responsible for fetching data from the API
+2. MajorOrderTransformer - Handles data transformation to match the database schema
+3. DatabaseManager - Manages database operations including upserts
+
+Current Status:
+- The transformer and database upsert logic have already been updated to match the new schema
+- Unit and integration tests confirm these components work correctly with the new schema
+- The fetcher script is successfully integrated with the updated transformer and DB logic
+- End-to-end pipeline tests are passing with the new schema
+
+Remaining Tasks:
+1. Review and enhance error handling in the fetcher and transformer:
+   - Add specific exception handling for API timeouts, connection errors, and malformed responses
+   - Implement logging for all error cases with appropriate severity levels
+   - Create fallback mechanisms for partial data processing when possible
+
+2. Strengthen validation logic in the transformer:
+   - Add comprehensive field validation for all required fields
+   - Implement type checking and conversion for fields that may have inconsistent types
+   - Add boundary validation for numeric fields and format validation for strings
+
+3. Improve robustness against edge cases:
+   - Handle null values, empty arrays, and unexpected data types gracefully
+   - Add defensive coding patterns to prevent processing failures
+   - Implement circuit breakers to prevent cascading failures
+
+4. Optimize performance:
+   - Evaluate and implement batch processing for large datasets
+   - Consider connection pooling for database operations
+   - Profile the import process to identify and address bottlenecks
+
+5. Testing:
+   - Ensure all unit tests cover the new validation and error handling logic
+   - Add integration tests for edge cases and error scenarios
+   - Verify performance under load with realistic data volumes
+</info added on 2025-05-14T23:50:04.287Z>
+
+## 4. Update Related Components and Services [done]
+### Dependencies: 20.2, 20.3
+### Description: Modify all components that interact with Major Orders data to work with the new schema and data structure.
+### Details:
+Update data access layers, service classes, controllers, and view models to align with the new database schema. Ensure all CRUD operations work correctly with the updated structure. Implement backward compatibility where possible, or document breaking changes. Update any caching mechanisms to work with the new data structure. Implement comprehensive logging for debugging and monitoring. Review and update any related business logic that depends on Major Orders data.
+
+## 5. Update Documentation and Finalize Implementation [done]
+### Dependencies: 20.3, 20.4
+### Description: Update API documentation, create migration guides, and perform final testing of the rebuilt integration.
+### Details:
+Update the API documentation to reflect the changes in data structure and integration. Create migration guides for any breaking changes. Perform comprehensive testing of the entire integration flow. Implement monitoring for the import process to detect any issues in production. Create a rollback plan in case of unexpected issues. Prepare a deployment strategy that minimizes downtime and data loss risk. Document any performance improvements or potential issues for future reference.
+

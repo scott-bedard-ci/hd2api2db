@@ -1,0 +1,64 @@
+# Task ID: 4
+# Title: Implement Database Access Layer
+# Status: done
+# Dependencies: 1
+# Priority: high
+# Description: Create a database access layer that handles connections to MySQL and provides methods for inserting, updating, and querying data.
+# Details:
+Implement a database access layer that:
+1. Manages MySQL connection using environment variables or config file for credentials
+2. Implements connection pooling for efficient database access
+3. Provides methods for inserting and updating data for each table
+4. Uses transactions to ensure data consistency
+5. Implements upsert logic to avoid duplicates
+
+Example implementation:
+```python
+class DatabaseManager:
+    def __init__(self, config):
+        self.config = config
+        self.connection_pool = None
+        self._init_connection_pool()
+        
+    def _init_connection_pool(self):
+        self.connection_pool = mysql.connector.pooling.MySQLConnectionPool(
+            pool_name="helldivers2_pool",
+            pool_size=5,
+            host=self.config.get('DB_HOST'),
+            user=self.config.get('DB_USER'),
+            password=self.config.get('DB_PASSWORD'),
+            database=self.config.get('DB_NAME')
+        )
+    
+    def get_connection(self):
+        return self.connection_pool.get_connection()
+    
+    def upsert_planets(self, planets_data):
+        connection = self.get_connection()
+        cursor = connection.cursor()
+        try:
+            for planet in planets_data:
+                query = """INSERT INTO planets 
+                          (planet_id, name, sector, region, liberation_status, players, max_health, current_health, position_x, position_y, position_z, last_updated) 
+                          VALUES (%(planet_id)s, %(name)s, %(sector)s, %(region)s, %(liberation_status)s, %(players)s, %(max_health)s, %(current_health)s, %(position_x)s, %(position_y)s, %(position_z)s, %(last_updated)s)
+                          ON DUPLICATE KEY UPDATE 
+                          name=VALUES(name), sector=VALUES(sector), region=VALUES(region), liberation_status=VALUES(liberation_status), 
+                          players=VALUES(players), max_health=VALUES(max_health), current_health=VALUES(current_health), 
+                          position_x=VALUES(position_x), position_y=VALUES(position_y), position_z=VALUES(position_z), 
+                          last_updated=VALUES(last_updated)"""
+                cursor.execute(query, planet)
+            connection.commit()
+        except Exception as e:
+            connection.rollback()
+            raise e
+        finally:
+            cursor.close()
+            connection.close()
+    
+    # Implement similar methods for other data types
+```
+
+Implement similar methods for all data types.
+
+# Test Strategy:
+Create unit tests using a test database. Test connection management, transaction handling, and error recovery. Verify that upsert logic works correctly by inserting the same data twice. Test with various data scenarios including updates to existing records.

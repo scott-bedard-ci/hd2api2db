@@ -1,0 +1,48 @@
+# Task ID: 2
+# Title: Implement API Client for Helldivers 2 API
+# Status: done
+# Dependencies: None
+# Priority: high
+# Description: Create a reusable API client that can fetch data from all required Helldivers 2 API endpoints with proper error handling and retry logic.
+# Details:
+Implement a modular API client class that:
+1. Handles HTTP requests to the Helldivers 2 API endpoints
+2. Includes methods for each endpoint: getWarStatus(), getWarInfo(), getNews(), getCampaign(), getPlanetHistory(planetIndex), getMajorOrders(), getPlanets()
+3. Implements error handling with appropriate logging
+4. Includes retry logic with exponential backoff for failed requests
+5. Handles rate limiting if encountered
+6. Returns parsed JSON responses
+
+Example implementation:
+```python
+class Helldivers2ApiClient:
+    BASE_URL = 'https://helldiverstrainingmanual.com/api/v1/war'
+    
+    def __init__(self, max_retries=3):
+        self.max_retries = max_retries
+        
+    def _make_request(self, endpoint, params=None):
+        url = f"{self.BASE_URL}/{endpoint}"
+        retry_count = 0
+        while retry_count < self.max_retries:
+            try:
+                response = requests.get(url, params=params, timeout=10)
+                response.raise_for_status()
+                return response.json()
+            except Exception as e:
+                retry_count += 1
+                if retry_count == self.max_retries:
+                    logging.error(f"Failed to fetch {url}: {str(e)}")
+                    raise
+                wait_time = 2 ** retry_count
+                logging.warning(f"Retrying {url} in {wait_time} seconds...")
+                time.sleep(wait_time)
+    
+    def get_war_status(self):
+        return self._make_request('status')
+        
+    # Implement other endpoint methods similarly
+```
+
+# Test Strategy:
+Create unit tests for each API endpoint method using mocked HTTP responses. Test error handling by simulating network failures and API errors. Verify retry logic works correctly. Integration test with the actual API to ensure the client can fetch and parse real data correctly.

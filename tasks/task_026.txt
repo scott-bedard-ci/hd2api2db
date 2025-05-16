@@ -1,0 +1,118 @@
+# Task ID: 26
+# Title: Task #26: Implement Dual Database Credential Support with Test Environment Isolation
+# Status: done
+# Dependencies: None
+# Priority: medium
+# Description: Add support for separate live and test database credentials in the .env file and modify the test framework to automatically use test database settings during test execution, ensuring test isolation from production data.
+# Details:
+This task involves several key components:
+
+1. **Environment File Structure**:
+   - Update the .env file format to include two sets of database credentials:
+     - LIVE_DB_HOST, LIVE_DB_PORT, LIVE_DB_NAME, LIVE_DB_USER, LIVE_DB_PASSWORD
+     - TEST_DB_HOST, TEST_DB_PORT, TEST_DB_NAME, TEST_DB_USER, TEST_DB_PASSWORD
+   - Ensure backward compatibility by maintaining support for the existing DB_* variables, which should map to the live database settings
+
+2. **Configuration Logic**:
+   - Modify the database connection module to read both sets of credentials
+   - Implement a connection factory that can create connections to either database based on a runtime parameter
+   - Add an environment variable (e.g., USE_TEST_DB=true/false) to control which database is used
+
+3. **Test Framework Updates**:
+   - Update conftest.py to use pytest's monkeypatch.setenv to override the database environment variables during test execution
+   - Create a fixture that ensures all tests use the test database credentials
+   - Implement the fixture to run automatically for all tests without explicit inclusion
+
+4. **Documentation**:
+   - Update the README.md with clear instructions on:
+     - The new .env file format with examples
+     - How the system determines which database to use
+     - How to manually switch between databases for development
+     - The automatic test isolation mechanism
+
+5. **Safety Mechanisms**:
+   - Add validation to prevent accidental use of live database in test environments
+   - Implement clear logging when database connections are established to indicate which database is being used
+
+# Test Strategy:
+The implementation should be verified through the following tests:
+
+1. **Environment Variable Parsing Tests**:
+   - Verify that both sets of credentials are correctly parsed from the .env file
+   - Test fallback behavior when only legacy variables are present
+   - Test error handling for missing or incomplete credentials
+
+2. **Connection Factory Tests**:
+   - Create unit tests that verify the connection factory correctly uses the appropriate credentials based on the environment setting
+   - Test that connection strings are properly constructed with the correct parameters
+
+3. **Test Isolation Verification**:
+   - Create a test that attempts to write to a test-only table
+   - Verify that this operation succeeds in the test environment
+   - Verify that the same code running outside of tests (without monkeypatch) would use the live database
+
+4. **Integration Tests**:
+   - Run the full test suite with deliberate differences between test and live database configurations
+   - Verify through logs or connection monitoring that all test connections use the test database
+   - Create a canary test that fails if it detects it's running against the live database
+
+5. **Documentation Verification**:
+   - Review the README updates for clarity and completeness
+   - Have another team member follow the documentation to set up a development environment with both database configurations
+
+6. **Edge Case Testing**:
+   - Test behavior when credentials are invalid
+   - Test behavior when switching between databases at runtime
+   - Verify that long-running processes maintain the correct database connection
+
+# Subtasks:
+## 1. Update .env file structure and environment variable handling [done]
+### Dependencies: None
+### Description: Modify the .env file format to support dual database credentials while maintaining backward compatibility with existing DB_* variables.
+### Details:
+1. Create a new .env.example file that includes both LIVE_DB_* and TEST_DB_* variable sets
+2. Update the environment variable loading module to read both sets of credentials
+3. Implement fallback logic where if LIVE_DB_* variables aren't defined, the system uses DB_* variables
+4. Add the USE_TEST_DB environment variable with boolean parsing
+5. Document the changes in code comments
+
+## 2. Implement database connection factory with credential switching [done]
+### Dependencies: 26.1
+### Description: Create a connection factory that can dynamically select between live and test database credentials based on runtime parameters.
+### Details:
+1. Refactor the existing database connection module to use a factory pattern
+2. Implement a getDatabaseConnection() function that accepts an optional useTestDb parameter
+3. Use the USE_TEST_DB environment variable as the default value if the parameter isn't provided
+4. Add clear logging when connections are established to indicate which database is being used
+5. Implement validation to prevent accidental use of live database in test environments (check NODE_ENV)
+
+## 3. Update test framework with automatic test database selection [done]
+### Dependencies: 26.2
+### Description: Modify the test framework to automatically use test database credentials during test execution.
+### Details:
+1. Update conftest.py to use pytest's monkeypatch.setenv to override USE_TEST_DB to 'true'
+2. Create a database fixture that ensures all tests use the test database credentials
+3. Configure the fixture to run automatically for all tests without explicit inclusion
+4. Add teardown logic to close database connections after tests complete
+5. Implement safeguards to verify tests are never running against the live database
+
+## 4. Implement test isolation verification mechanism [done]
+### Dependencies: 26.3
+### Description: Create utilities to verify that tests are properly isolated from the production database.
+### Details:
+1. Create a TestDatabaseVerifier class that can be used in tests
+2. Implement methods to check which database is currently being used
+3. Add a function to verify test data isolation by checking database connection parameters
+4. Create helper methods for tests to assert they're running against the test database
+5. Add logging during test execution to show which database is being used
+
+## 5. Update documentation and create migration guide [done]
+### Dependencies: 26.1, 26.2, 26.3, 26.4
+### Description: Update the README.md and create additional documentation to explain the new dual database credential system.
+### Details:
+1. Update the README.md with clear instructions on the new .env file format with examples
+2. Document how the system determines which database to use
+3. Provide instructions on how to manually switch between databases for development
+4. Explain the automatic test isolation mechanism
+5. Create a migration guide for existing projects to adopt the new dual credential system
+

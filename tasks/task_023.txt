@@ -1,0 +1,22 @@
+# Task ID: 23
+# Title: Add error reporting for missing Planet IDs during planet history ingestion and tests
+# Status: done
+# Dependencies: None
+# Priority: medium
+# Description: Implement logic to collect and report all missing planet_id errors (foreign key violations) encountered during planet history ingestion or testing. The report should include the missing planet IDs and relevant context for each occurrence.
+# Details:
+The implementation approach will involve:
+
+1. Capturing foreign key violations during planet history ingestion
+2. Collecting all missing planet_id errors in a structured format
+3. Including contextual information such as timestamp, operation type, and data source
+4. Generating a comprehensive error report that can be reviewed by administrators
+5. Ensuring the system continues processing valid records while logging invalid ones
+
+# Test Strategy:
+Testing will include:
+
+1. Unit tests with mock data containing known missing planet IDs
+2. Integration tests verifying error collection during actual ingestion processes
+3. Validation that all error contexts are properly captured
+4. Verification that the error report format is clear and actionable

@@ -1,0 +1,48 @@
+# Task ID: 17
+# Title: Task #17: Rebuild War Status API Integration to Match Actual API Response Structure
+# Status: done
+# Dependencies: None
+# Priority: high
+# Description: Update the database schema, import scripts, and related components to correctly handle the actual structure of the war status API response, ensuring all fields are properly stored and retrieved.
+# Details:
+This task involves a complete rebuild of the War Status API integration to align with the actual API response structure. The implementation should:
+
+1. Analyze the current War Status API response format to identify all fields and their data types.
+2. Design and implement an updated database schema that accurately reflects this structure.
+3. Create or modify migration scripts following the drop-and-rebuild approach used in Task #16.
+4. Update the data transformer to handle any integer timestamp fields, converting them to MySQL DATETIME strings.
+5. Modify the import scripts to correctly parse and store all fields from the API response.
+6. Update any related components (controllers, models, services) that interact with war status data.
+7. Ensure backward compatibility where possible, or document breaking changes.
+8. Add appropriate error handling for potential API response variations.
+9. Create comprehensive documentation of the new schema and integration process.
+10. Update any existing queries or reports that rely on the war status data.
+
+The implementation should prioritize data integrity and performance, especially considering that war status data may be frequently accessed and updated.
+
+# Test Strategy:
+Testing for this task should be comprehensive and include:
+
+1. Unit tests:
+   - Test the data transformer to verify correct handling of integer timestamps to DATETIME conversions
+   - Test the import scripts with mock API responses to ensure proper parsing
+   - Test database models for correct field validation and relationships
+
+2. Integration tests:
+   - Test the full import process with sample API responses
+   - Verify that all fields are correctly stored in the database
+   - Test the retrieval of war status data through relevant endpoints
+
+3. Regression tests:
+   - Ensure existing functionality that depends on war status data continues to work
+   - Verify that any reports or dashboards display correct information
+
+4. Performance tests:
+   - Measure import time for typical API responses
+   - Test query performance for common war status data access patterns
+
+5. Manual verification:
+   - Compare the stored data with the raw API response to confirm accuracy
+   - Verify the data is displayed correctly in the application UI
+
+Document all test cases and results, including before/after comparisons of database structure and data representation. Include screenshots of the working integration in the documentation.

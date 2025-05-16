@@ -1,0 +1,50 @@
+# Task ID: 3
+# Title: Implement Data Transformers
+# Status: done
+# Dependencies: 1, 2
+# Priority: medium
+# Description: Create data transformer modules that convert API JSON responses to database-ready formats for each data type.
+# Details:
+Implement a set of transformer classes or functions that:
+1. Take raw API JSON as input
+2. Validate and clean the data
+3. Transform the data into the format required by the database schema
+4. Handle any data type conversions or normalization needed
+
+Create separate transformers for each data type:
+- WarStatusTransformer
+- PlanetTransformer
+- NewsTransformer
+- CampaignTransformer
+- MajorOrderTransformer
+- PlanetHistoryTransformer
+
+Example implementation:
+```python
+class PlanetTransformer:
+    def transform(self, planet_data):
+        """Transform raw planet data from API to database format"""
+        transformed_planets = []
+        for planet in planet_data:
+            transformed_planet = {
+                'planet_id': planet.get('index'),
+                'name': planet.get('name'),
+                'sector': planet.get('sector'),
+                'region': planet.get('region'),
+                'liberation_status': planet.get('liberation', 0),
+                'players': planet.get('players', 0),
+                'max_health': planet.get('maxHealth', 0),
+                'current_health': planet.get('health', 0),
+                'position_x': planet.get('position', {}).get('x', 0),
+                'position_y': planet.get('position', {}).get('y', 0),
+                'position_z': planet.get('position', {}).get('z', 0),
+                'last_updated': datetime.now()
+            }
+            transformed_planets.append(transformed_planet)
+        return transformed_planets
+```
+
+Implement similar transformers for all data types.
+
+# Test Strategy:
+Create unit tests for each transformer using sample API responses. Verify that the transformers correctly handle all expected fields, data types, and edge cases. Test with incomplete or malformed data to ensure proper error handling and validation.

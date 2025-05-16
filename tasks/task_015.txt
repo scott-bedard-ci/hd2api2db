@@ -1,0 +1,54 @@
+# Task ID: 15
+# Title: Task #15: Implement Database Wipe CLI Command for Fresh Data Pulls
+# Status: done
+# Dependencies: None
+# Priority: high
+# Description: Create a CLI command or script that safely truncates all tables in the production or test database while preserving the schema, enabling fresh data pulls from the Helldivers 2 API.
+# Details:
+The implementation should include:
+
+1. A new CLI command or script (e.g., `db-wipe` or similar) that truncates all tables in the specified database.
+2. Safety mechanisms:
+   - Require explicit confirmation with a prompt like "Are you sure you want to wipe all data from [database_name]? This action cannot be undone. Type 'YES' to confirm."
+   - Alternative flag option (e.g., `--force` or `--confirm`) to bypass interactive confirmation for automation purposes.
+   - Database name validation to ensure it matches expected patterns (similar to Task #13's check for test databases).
+3. Schema preservation - only data should be removed, not table structures, constraints, or indexes.
+4. Logging of the operation with timestamp and user information.
+5. Connection handling with proper error management.
+6. Support for both production and test databases with appropriate warnings.
+
+Update the project README.md with:
+- Command syntax and examples
+- Warning about data loss
+- Explanation of when/why to use this command
+- Any environment variables or configuration needed
+
+The implementation should leverage existing database connection utilities in the project and follow the project's coding standards.
+
+# Test Strategy:
+Testing should be thorough to ensure data safety:
+
+1. Unit tests:
+   - Mock database connections to verify confirmation prompts work correctly
+   - Test force flag bypasses confirmation correctly
+   - Verify error handling for connection failures
+
+2. Integration tests (on test database only):
+   - Create a temporary test database with sample data
+   - Run the command against it
+   - Verify all tables are empty but schema remains intact
+   - Check that indexes, constraints, and other schema elements are preserved
+   - Verify logging functionality works as expected
+
+3. Manual testing:
+   - Review the README documentation for clarity and completeness
+   - Test the command on a development environment with sample data
+   - Verify the command works with both interactive confirmation and force flag
+   - Confirm data is completely removed while schema remains intact
+
+4. Safety verification:
+   - Attempt to run against production without proper confirmation and verify it fails
+   - Test database name validation works as expected
+   - Verify the command integrates with existing database safety mechanisms from Task #13
+
+Document all test results and include examples of command usage in the pull request.

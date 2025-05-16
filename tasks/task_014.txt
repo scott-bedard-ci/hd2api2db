@@ -1,0 +1,58 @@
+# Task ID: 14
+# Title: Task #14: Document Test Database Policy in Project Documentation
+# Status: done
+# Dependencies: None
+# Priority: high
+# Description: Create comprehensive documentation outlining the project's test database policy, specifying that all tests must use a dedicated test database, never run with production credentials, and always clean up test data.
+# Details:
+This task involves creating clear documentation of the test database policy that has been implemented in recent tasks (11-13). The documentation should be added to both the README.md and a new CONTRIBUTING.md file if one doesn't exist.
+
+For the README.md:
+1. Add a section titled "Testing Policy" that briefly outlines the key requirements:
+   - All tests must use the dedicated test database (helldivers2_test)
+   - Tests must never run with production credentials
+   - All test data must be cleaned up after test execution
+   - Reference the CONTRIBUTING.md file for more details
+
+For the CONTRIBUTING.md:
+1. Create this file if it doesn't exist
+2. Add a detailed "Testing Guidelines" section that includes:
+   - Explanation of why these policies exist (data safety, test isolation, etc.)
+   - Specific instructions on how to configure test database connections
+   - Code examples showing proper setup and teardown patterns
+   - Instructions for creating test credentials
+   - Explanation of the safety checks implemented in Task #13
+   - Clear warnings about the risks of not following these guidelines
+   - Process for verifying tests are compliant with these policies
+
+The documentation should be written in a clear, accessible style that both new and existing developers can understand. Include references to the specific implementation details from Tasks #11-13 to ensure consistency between the code and documentation.
+
+# Test Strategy:
+To verify this task has been completed successfully:
+
+1. Review the README.md file:
+   - Confirm it contains a new "Testing Policy" section
+   - Verify the section clearly states the three key requirements
+   - Check that it references the CONTRIBUTING.md file for more details
+
+2. Review the CONTRIBUTING.md file:
+   - Confirm it exists and contains a "Testing Guidelines" section
+   - Verify it includes detailed explanations of all required policy elements
+   - Check that code examples are provided and accurate
+   - Ensure the documentation references the implementations from Tasks #11-13
+
+3. Conduct a peer review:
+   - Have at least two other team members review the documentation
+   - Verify they understand the policies without additional explanation
+   - Confirm the documentation is comprehensive enough for new developers
+
+4. Test with a new developer:
+   - If possible, have someone unfamiliar with the project read the documentation
+   - Ask them to explain the testing policy back to you
+   - Verify they understand all key requirements
+
+5. Check for consistency:
+   - Ensure the documentation accurately reflects the actual implementations from Tasks #11-13
+   - Verify there are no contradictions between README.md and CONTRIBUTING.md
+
+The task is complete when all documentation is in place, peer-reviewed, and accurately reflects the implemented testing policies.

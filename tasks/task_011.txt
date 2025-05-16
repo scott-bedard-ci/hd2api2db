@@ -1,0 +1,35 @@
+# Task ID: 11
+# Title: Task #11: Configure Test Environment with Dedicated Test Database
+# Status: done
+# Dependencies: None
+# Priority: high
+# Description: Update all test scripts to use a dedicated test database (helldivers2_test) instead of the production database, ensuring test isolation and data safety.
+# Details:
+This task involves several key implementation steps:
+
+1. Create a dedicated test database schema (helldivers2_test) that mirrors the production database structure.
+2. Modify all test scripts to use environment variables or configuration settings that point to the test database.
+3. Update the configuration system (from Task #9) to include test-specific database settings.
+4. Implement environment detection to automatically use the test database when in test mode.
+5. Add database connection string overrides in all test files.
+6. Create database setup and teardown scripts that prepare the test database before tests and clean it after tests.
+7. Ensure all CI/CD pipelines are updated to use the test database configuration.
+8. Document the test database setup process in the project documentation.
+9. Add safeguards that prevent test code from connecting to production databases, such as hostname/database name validation.
+10. Update any database fixtures or mock data generators to work with the test database.
+
+The implementation should leverage the configuration system created in Task #9, extending it to handle different environments (development, testing, production). All database connection strings in test code should be parameterized to use MYSQL_DATABASE environment variable or equivalent configuration setting.
+
+# Test Strategy:
+To verify this task has been completed successfully:
+
+1. Run a comprehensive test suite with database logging enabled to confirm all database connections are using the helldivers2_test database.
+2. Create a test that attempts to connect to the production database and verify it fails with appropriate error messages.
+3. Verify that CI/CD pipelines successfully run tests using the test database.
+4. Perform code review to ensure all test files have been updated to use the test database configuration.
+5. Create a script that analyzes all test files for hardcoded database names and run it to verify no production database references remain.
+6. Test the database setup and teardown scripts to ensure they correctly prepare the test environment.
+7. Verify that running tests does not affect production data by deliberately modifying test data and confirming production remains unchanged.
+8. Test the system with various environment configurations to ensure it correctly selects the appropriate database.
+9. Document test results, including logs showing database connections to the test database.
+10. Perform a pair programming session where another developer reviews the changes and confirms the implementation meets requirements.

@@ -1,0 +1,137 @@
+# Task ID: 24
+# Title: Task #24: Refactor Testing Framework to Use Pytest
+# Status: done
+# Dependencies: None
+# Priority: medium
+# Description: Standardize the project's testing approach by migrating from individual test scripts to pytest as the primary test runner, including proper implementation of fixtures, test discovery, and reporting mechanisms.
+# Details:
+This task involves a comprehensive refactoring of the existing test suite to leverage pytest's capabilities:
+
+1. **Migration to pytest structure**:
+   - Convert all existing test files to follow pytest naming conventions (test_*.py or *_test.py)
+   - Restructure test directories to enable automatic test discovery
+   - Remove any manual test runners or main() functions from test files
+   - Update import statements to use relative imports where appropriate
+
+2. **Implement pytest fixtures**:
+   - Create fixtures for common setup/teardown operations
+   - Develop a database fixture that properly connects to helldivers2_test database
+   - Ensure database state is properly reset between tests
+   - Implement session-level fixtures for expensive operations that can be reused
+
+3. **Database connection management**:
+   - Create a centralized configuration for test database credentials
+   - Implement environment variable handling for database connection parameters
+   - Ensure tests use isolated database connections to prevent cross-test contamination
+   - Add transaction management to roll back changes after tests
+
+4. **Test isolation and repeatability**:
+   - Ensure each test can run independently
+   - Implement proper cleanup mechanisms
+   - Address any tests with external dependencies
+   - Eliminate any test order dependencies
+
+5. **Documentation updates**:
+   - Update README with detailed instructions on running tests with pytest
+   - Document any custom fixtures and their usage
+   - Include examples of running specific test subsets
+   - Add information about test reporting options
+
+6. **CI/CD integration**:
+   - Update any CI/CD pipelines to use pytest
+   - Configure pytest to generate reports compatible with CI tools
+   - Set up proper exit codes for test failures
+
+# Test Strategy:
+The refactoring will be verified through the following steps:
+
+1. **Functionality verification**:
+   - Run the complete test suite with pytest to ensure all tests pass
+   - Compare test results before and after refactoring to confirm no functionality was lost
+   - Verify that all tests can be discovered automatically by pytest
+
+2. **Isolation testing**:
+   - Run individual tests in isolation to verify they don't depend on other tests
+   - Run tests in different orders to ensure they don't rely on execution sequence
+   - Verify tests can be run in parallel without conflicts
+
+3. **Database connection validation**:
+   - Confirm tests properly connect to helldivers2_test database
+   - Verify database state is properly reset between test runs
+   - Test with different environment configurations to ensure connection parameters work correctly
+   - Check that no test data leaks between test runs
+
+4. **Documentation review**:
+   - Verify README accurately describes how to run tests with pytest
+   - Ensure all custom fixtures are properly documented
+   - Confirm the documentation includes examples for common test scenarios
+
+5. **CI/CD verification**:
+   - Run the test suite in the CI/CD pipeline to confirm integration
+   - Verify test reports are generated correctly
+   - Ensure the pipeline fails appropriately when tests fail
+
+6. **Code review**:
+   - Conduct a thorough review of the refactored test code
+   - Verify all main() functions and manual test runners have been removed
+   - Confirm proper use of pytest fixtures and assertions
+
+# Subtasks:
+## 1. Deduplicate test DB setup fixtures using conftest.py [done]
+### Dependencies: None
+### Description: Move the shared setup_test_db_env and clean_db_before_and_after fixtures to a single conftest.py file in src/. Remove duplicate fixture definitions from all test files and ensure all tests use the shared fixtures for DB setup and teardown. This will enforce DRY principles and simplify test maintenance.
+### Details:
+- Create src/conftest.py with the shared fixtures for DB environment and cleanup.
+- Remove the same fixtures from all test_*.py files in src/.
+- Confirm all tests still run and use the correct DB credentials and cleanup logic.
+
+## 2. Add pytest markers for fast vs complete test runs [done]
+### Dependencies: None
+### Description: Add pytest markers to distinguish between fast (unit) tests and complete (including integration/orchestration) tests. Update pytest.ini and test files accordingly. Document usage in README if needed.
+### Details:
+- Mark the orchestration/integration test(s) with @pytest.mark.complete
+- All other tests are considered 'fast' by default
+- Add marker registration to pytest.ini
+- Document how to run only fast tests (pytest -m fast), only complete tests (pytest -m complete), or all tests (pytest)
+- Ensure the orchestration test is excluded from 'fast' runs
+- Update README with new test running instructions if necessary.
+
+## 3. Complete migration to pytest structure [done]
+### Dependencies: None
+### Description: Finalize the migration of all test files to follow pytest conventions and ensure automatic test discovery works correctly.
+### Details:
+- Verify all test files follow pytest naming conventions
+- Confirm test directories are properly structured
+- Remove any remaining manual test runners
+- Update import statements as needed
+- Ensure all tests are discoverable by pytest
+
+## 4. Finalize database connection management [done]
+### Dependencies: None
+### Description: Complete the implementation of centralized database configuration and connection management for tests.
+### Details:
+- Finalize centralized configuration for test database credentials
+- Verify environment variable handling for connection parameters
+- Ensure test isolation through proper connection management
+- Implement transaction rollback for test cleanup
+
+## 5. Update documentation and CI/CD integration [done]
+### Dependencies: None
+### Description: Complete documentation updates and integrate pytest with CI/CD pipelines.
+### Details:
+- Finalize README updates with comprehensive test instructions
+- Document all custom fixtures and their usage
+- Update CI/CD pipelines to use pytest
+- Configure test reporting for CI tools
+- Verify proper exit code handling for test failures
+
+## 6. Final verification and review [done]
+### Dependencies: None
+### Description: Perform final verification of the refactored test framework and conduct a comprehensive review.
+### Details:
+- Run complete test suite to verify all tests pass
+- Confirm test isolation and repeatability
+- Verify database state management between tests
+- Review all code changes for quality and consistency
+- Ensure all requirements of the task have been met
+

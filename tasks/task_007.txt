@@ -1,0 +1,57 @@
+# Task ID: 7
+# Title: Implement Remaining Data Fetchers and Storage
+# Status: done
+# Dependencies: 2, 3, 4
+# Priority: medium
+# Description: Create modules for fetching, transforming, and storing news, campaign, major orders, and planet history data.
+# Details:
+Implement fetcher classes for the remaining data types:
+1. NewsFetcher - fetches and stores news data
+2. CampaignFetcher - fetches and stores campaign data
+3. MajorOrdersFetcher - fetches and stores major orders data
+4. PlanetHistoryFetcher - fetches and stores planet history data
+
+Each fetcher should follow the same pattern as the WarStatusFetcher and PlanetFetcher, with appropriate modifications for the specific data type.
+
+The PlanetHistoryFetcher will need to iterate through all planets to fetch their history:
+
+```python
+class PlanetHistoryFetcher:
+    def __init__(self, api_client, transformer, db_manager):
+        self.api_client = api_client
+        self.transformer = transformer
+        self.db_manager = db_manager
+        self.logger = logging.getLogger(__name__)
+        
+    def fetch_and_store(self):
+        try:
+            # First get all planets to know their indices
+            planets = self.api_client.get_planets()
+            success_count = 0
+            failure_count = 0
+            
+            for planet in planets:
+                planet_index = planet.get('index')
+                try:
+                    self.logger.info(f"Fetching history for planet {planet.get('name')} (index: {planet_index})")
+                    history_data = self.api_client.get_planet_history(planet_index)
+                    
+                    transformed_data = self.transformer.transform(history_data, planet_index)
+                    self.db_manager.upsert_planet_history(transformed_data)
+                    
+                    success_count += 1
+                except Exception as e:
+                    self.logger.error(f"Error fetching history for planet {planet_index}: {str(e)}")
+                    failure_count += 1
+            
+            self.logger.info(f"Planet history update completed. Success: {success_count}, Failures: {failure_count}")
+            return success_count > 0
+        except Exception as e:
+            self.logger.error(f"Error in planet history update process: {str(e)}")
+            return False
+```
+
+Implement similar fetchers for all remaining data types.
+
+# Test Strategy:
+Create unit tests with mocked dependencies for each fetcher. Test error handling and recovery, especially for the PlanetHistoryFetcher which needs to handle multiple API calls. Create integration tests that verify each fetcher can successfully process real or simulated API data.

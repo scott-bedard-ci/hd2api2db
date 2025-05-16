@@ -1,0 +1,89 @@
+# Task ID: 9
+# Title: Implement Configuration and Logging System
+# Status: done
+# Dependencies: None
+# Priority: medium
+# Description: Create a configuration system for database credentials and other settings, and implement a comprehensive logging system.
+# Details:
+Implement a configuration system that:
+1. Loads settings from environment variables and/or a config file
+2. Provides default values for optional settings
+3. Validates required settings
+
+Implement a logging system that:
+1. Logs to both console and file
+2. Includes timestamps, log levels, and contextual information
+3. Rotates log files to prevent excessive disk usage
+4. Configures different log levels for different components
+
+Example implementation:
+```python
+class Config:
+    def __init__(self, config_file=None):
+        self.settings = {
+            'DB_HOST': 'localhost',
+            'DB_PORT': 3306,
+            'DB_NAME': 'helldivers2',
+            'DB_USER': None,
+            'DB_PASSWORD': None,
+            'LOG_LEVEL': 'INFO',
+            'LOG_FILE': 'helldivers2_pipeline.log',
+            'UPDATE_INTERVAL_HOURS': 24
+        }
+        
+        # Load from config file if provided
+        if config_file and os.path.exists(config_file):
+            with open(config_file, 'r') as f:
+                file_config = json.load(f)
+                self.settings.update(file_config)
+        
+        # Override with environment variables
+        for key in self.settings.keys():
+            env_value = os.environ.get(key)
+            if env_value is not None:
+                # Convert types as needed
+                if isinstance(self.settings[key], int):
+                    self.settings[key] = int(env_value)
+                else:
+                    self.settings[key] = env_value
+        
+        # Validate required settings
+        required_settings = ['DB_USER', 'DB_PASSWORD', 'DB_NAME']
+        missing_settings = [s for s in required_settings if self.settings[s] is None]
+        if missing_settings:
+            raise ValueError(f"Missing required settings: {', '.join(missing_settings)}")
+    
+    def get(self, key, default=None):
+        return self.settings.get(key, default)
+
+def setup_logging(config):
+    log_level = getattr(logging, config.get('LOG_LEVEL', 'INFO'))
+    log_file = config.get('LOG_FILE')
+    
+    # Create logger
+    logger = logging.getLogger()
+    logger.setLevel(log_level)
+    
+    # Create formatters
+    file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    console_formatter = logging.Formatter('%(levelname)s - %(message)s')
+    
+    # File handler with rotation
+    file_handler = RotatingFileHandler(log_file, maxBytes=10*1024*1024, backupCount=5)
+    file_handler.setFormatter(file_formatter)
+    file_handler.setLevel(log_level)
+    
+    # Console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(console_formatter)
+    console_handler.setLevel(log_level)
+    
+    # Add handlers to logger
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+    
+    return logger
+```
+
+# Test Strategy:
+Create unit tests for the Config class with various input scenarios (environment variables, config file, missing values). Test the logging setup by capturing log output and verifying format and content. Test log rotation by generating enough logs to trigger rotation.

@@ -1,0 +1,19 @@
+# Task ID: 1
+# Title: Set up MySQL Database Schema
+# Status: done
+# Dependencies: None
+# Priority: high
+# Description: Design and implement the MySQL database schema for storing Helldivers 2 data including tables for planets, war_status, news, campaigns, major_orders, and planet_history.
+# Details:
+Create a MySQL database with the following tables:
+1. `planets` - Store planet data with fields like id, name, sector, region, liberation_status, etc.
+2. `war_status` - Store current war status with timestamp, active players, etc.
+3. `news` - Store news items with id, title, content, publish_date, etc.
+4. `campaigns` - Store campaign data with id, name, description, start_date, end_date, etc.
+5. `major_orders` - Store major orders with id, description, target_planet_id, expiry_time, etc.
+6. `planet_history` - Store historical planet data with planet_id, timestamp, status, and other metrics.
+
+Implement foreign keys between related tables (e.g., planet_history references planets). Add appropriate indexes for efficient querying. Create a schema migration script that can be run to set up the database initially.
+
+# Test Strategy:
+Verify schema creation by running the migration script against a test MySQL instance. Validate that all tables are created with the correct columns, data types, indexes, and constraints. Test inserting sample data into each table to ensure the schema supports all required data.

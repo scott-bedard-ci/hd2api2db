@@ -1,0 +1,61 @@
+# Task ID: 13
+# Title: Task #13: Implement Database Safety Check in Test Scripts
+# Status: done
+# Dependencies: None
+# Priority: high
+# Description: Add a safety mechanism to all test scripts that verifies the database name ends with '_test' before execution, preventing accidental runs against production or staging databases.
+# Details:
+The implementation should include:
+
+1. Create a utility function `validateTestDatabase()` that:
+   - Extracts the current database name from the connection configuration
+   - Verifies the database name ends with '_test' using a regex pattern
+   - Throws a clear error and aborts execution if validation fails
+   - Logs a confirmation message if validation passes
+
+2. Modify all test script entry points to:
+   - Call the validation function before any test setup or execution begins
+   - Implement as an early check in the main test runner or in each individual test file
+   - Ensure the check cannot be bypassed or disabled without explicit override
+
+3. For test frameworks with hooks (like Jest, Mocha, pytest):
+   - Implement the check in a beforeAll/beforeEach hook to ensure it runs before any tests
+   - Configure the hook to have the highest priority
+
+4. Add configuration for emergency override:
+   - Create an environment variable (e.g., FORCE_TEST_ON_PROD=true) that can bypass the check
+   - Require multiple confirmations if override is used
+   - Log detailed warnings if override is activated
+
+5. Update documentation:
+   - Document the safety mechanism in the test README
+   - Include examples of expected behavior and error messages
+   - Explain the override process for exceptional situations
+
+# Test Strategy:
+To verify successful implementation:
+
+1. Unit test the validation function:
+   - Test with various database names (e.g., 'app_test', 'test_app', 'app_prod', 'app_staging')
+   - Verify it correctly identifies and rejects non-test databases
+   - Confirm it accepts databases with '_test' suffix
+
+2. Integration testing:
+   - Temporarily modify database connection settings to point to a non-test database
+   - Run test scripts and verify they abort with appropriate error messages
+   - Check that no test operations were performed on the non-test database
+   - Test with the override mechanism and verify it works as expected
+
+3. Code review verification:
+   - Ensure the check is implemented in all test entry points
+   - Verify the check runs before any database operations
+   - Confirm error messages are clear and actionable
+
+4. Documentation check:
+   - Review updated documentation for clarity and completeness
+   - Verify examples match the actual implementation
+
+5. Regression testing:
+   - Run all tests with correct test database configuration
+   - Verify tests still pass and the validation doesn't interfere with normal operation
+   - Measure any performance impact from the added validation

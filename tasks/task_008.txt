@@ -1,0 +1,78 @@
+# Task ID: 8
+# Title: Implement Main Update Orchestrator
+# Status: done
+# Dependencies: 5, 6, 7
+# Priority: high
+# Description: Create a main orchestrator that runs all data fetchers in the correct order and manages the overall update process.
+# Details:
+Implement an UpdateOrchestrator class that:
+1. Initializes all required components (API client, transformers, database manager, fetchers)
+2. Runs all fetchers in the appropriate order
+3. Handles errors from individual fetchers without stopping the entire process
+4. Logs the overall update process and results
+5. Provides a summary of the update (success/failure counts)
+
+Example implementation:
+```python
+class UpdateOrchestrator:
+    def __init__(self, config):
+        self.config = config
+        self.logger = logging.getLogger(__name__)
+        
+        # Initialize components
+        self.api_client = Helldivers2ApiClient(max_retries=3)
+        self.db_manager = DatabaseManager(config)
+        
+        # Initialize transformers
+        self.war_status_transformer = WarStatusTransformer()
+        self.planet_transformer = PlanetTransformer()
+        self.news_transformer = NewsTransformer()
+        self.campaign_transformer = CampaignTransformer()
+        self.major_orders_transformer = MajorOrdersTransformer()
+        self.planet_history_transformer = PlanetHistoryTransformer()
+        
+        # Initialize fetchers
+        self.war_status_fetcher = WarStatusFetcher(self.api_client, self.war_status_transformer, self.db_manager)
+        self.planet_fetcher = PlanetFetcher(self.api_client, self.planet_transformer, self.db_manager)
+        self.news_fetcher = NewsFetcher(self.api_client, self.news_transformer, self.db_manager)
+        self.campaign_fetcher = CampaignFetcher(self.api_client, self.campaign_transformer, self.db_manager)
+        self.major_orders_fetcher = MajorOrdersFetcher(self.api_client, self.major_orders_transformer, self.db_manager)
+        self.planet_history_fetcher = PlanetHistoryFetcher(self.api_client, self.planet_history_transformer, self.db_manager)
+    
+    def run_update(self):
+        start_time = datetime.now()
+        self.logger.info(f"Starting Helldivers 2 data update at {start_time}")
+        
+        results = {
+            'war_status': False,
+            'planets': False,
+            'news': False,
+            'campaign': False,
+            'major_orders': False,
+            'planet_history': False
+        }
+        
+        # Run fetchers in order
+        results['war_status'] = self.war_status_fetcher.fetch_and_store()
+        results['planets'] = self.planet_fetcher.fetch_and_store()
+        results['news'] = self.news_fetcher.fetch_and_store()
+        results['campaign'] = self.campaign_fetcher.fetch_and_store()
+        results['major_orders'] = self.major_orders_fetcher.fetch_and_store()
+        results['planet_history'] = self.planet_history_fetcher.fetch_and_store()
+        
+        end_time = datetime.now()
+        duration = (end_time - start_time).total_seconds()
+        
+        success_count = sum(1 for result in results.values() if result)
+        failure_count = len(results) - success_count
+        
+        self.logger.info(f"Update completed in {duration} seconds. Successes: {success_count}, Failures: {failure_count}")
+        for name, result in results.items():
+            status = "Success" if result else "Failed"
+            self.logger.info(f"{name}: {status}")
+        
+        return success_count == len(results)
+```
+
+# Test Strategy:
+Create unit tests with mocked fetchers to verify the orchestrator correctly manages the update process. Test error handling by simulating failures in individual fetchers. Create an integration test that runs a full update with test data or against a test database.

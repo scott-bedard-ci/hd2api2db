@@ -1,0 +1,73 @@
+# Task ID: 16
+# Title: Task #16: Rebuild News API Integration to Match Actual API Response Structure
+# Status: done
+# Dependencies: None
+# Priority: high
+# Description: Update the database schema, import scripts, and related components to correctly handle the actual structure of the news API response, ensuring all fields are properly stored and retrieved.
+# Details:
+This task involves a comprehensive update to the news API integration to align with the actual API response structure:
+
+1. Database Schema Updates:
+   - Modify the news table schema to include all fields from the API response (id, published, type, tagIds, message, etc.)
+   - Ensure appropriate data types for each field (e.g., timestamps for published, arrays for tagIds)
+   - Add any necessary indexes for performance optimization
+   - Create migration scripts for schema changes
+
+2. Data Import/Fetch Script Updates:
+   - Refactor the API client code to parse all fields from the news API response
+   - Implement proper error handling for missing or malformed fields
+   - Update the data storage logic to correctly map API response fields to database columns
+   - Ensure proper handling of any special data types (arrays, JSON objects, etc.)
+
+3. Data Wiping Logic:
+   - Create or update truncation/wiping functionality specific to the news table
+   - Ensure this logic is compatible with the CLI wipe command from Task #15
+   - Add safeguards to prevent accidental data loss
+
+4. Documentation:
+   - Document the new database schema with field descriptions
+   - Create a migration guide for future developers
+   - Update API integration documentation to reflect the changes
+   - Document any new functions or methods created
+
+5. Implementation Approach:
+   - Focus on correctness rather than preserving existing data
+   - Implement changes in a feature branch
+   - Follow existing project coding standards and patterns
+   - After completing the news API integration, prepare to repeat the process for other endpoints
+
+Note: This task is a prerequisite for similar updates to other API endpoints, so code should be structured to facilitate reuse where possible.
+
+# Test Strategy:
+The testing strategy should verify all aspects of the updated news API integration:
+
+1. Unit Tests:
+   - Test the API client's ability to correctly parse different response formats
+   - Test mapping functions that convert API responses to database models
+   - Test error handling for edge cases (missing fields, null values, etc.)
+
+2. Integration Tests:
+   - Create tests that mock API responses and verify correct database storage
+   - Test the full fetch-and-store pipeline with sample API responses
+   - Verify that all fields are correctly stored and retrieved from the database
+
+3. Database Tests:
+   - Test schema migrations to ensure they run without errors
+   - Verify that the database schema matches the expected structure
+   - Test data wiping functionality to ensure it properly cleans the news table
+
+4. Validation Tests:
+   - Compare stored data against raw API responses to verify field-by-field accuracy
+   - Test with a variety of real API responses to ensure robustness
+
+5. Test Environment:
+   - All tests must use the test database (following Task #14 policy)
+   - Tests should include the database safety check from Task #13
+   - Tests should clean up after themselves
+
+6. Acceptance Criteria:
+   - All tests pass consistently
+   - Database schema correctly reflects all fields from the API
+   - Import scripts successfully store all data from sample API responses
+   - Documentation is complete and accurate
+   - Code review confirms adherence to project standards

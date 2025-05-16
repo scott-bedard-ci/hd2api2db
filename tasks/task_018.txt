@@ -1,0 +1,51 @@
+# Task ID: 18
+# Title: Task #18: Rebuild Planets API Integration to Match Actual API Response Structure
+# Status: done
+# Dependencies: None
+# Priority: high
+# Description: Update the database schema, import scripts, and related components to correctly handle the actual structure of the planets API response, ensuring all fields are properly stored and retrieved.
+# Details:
+This task involves a comprehensive rebuild of the Planets API integration to align with the actual API response structure. The implementation should follow these steps:
+
+1. Analyze the current Planets API response structure and identify discrepancies with our existing database schema.
+2. Design an updated database schema that accurately reflects all fields in the API response.
+3. Create a migration script using the drop-and-rebuild approach (as in Task #16) to safely update the schema without data loss.
+4. Update the data transformer to properly handle all fields, paying special attention to:
+   - Integer timestamp fields that need conversion to MySQL DATETIME strings
+   - Nested objects or arrays that may require serialization
+   - Field type mismatches between the API and database
+5. Modify the import scripts to correctly parse and store all fields from the API response.
+6. Update any related components that interact with planet data (controllers, services, etc.).
+7. Revise the API documentation to reflect the changes in the data structure.
+8. Ensure proper error handling for cases where the API response structure might change in the future.
+
+The implementation should prioritize data integrity while maintaining backward compatibility with existing application features that rely on planet data.
+
+# Test Strategy:
+Testing for this task should be comprehensive and include:
+
+1. Unit tests:
+   - Test the data transformer to ensure it correctly converts API response objects to database entities
+   - Verify timestamp conversion logic works correctly for all date/time fields
+   - Test edge cases like missing fields or null values in the API response
+
+2. Integration tests:
+   - Create mock API responses that match the actual structure
+   - Verify the entire import pipeline correctly processes and stores the data
+   - Test the database schema by inserting sample data and checking constraints
+
+3. Manual verification:
+   - Perform a complete data import from the live Planets API
+   - Verify all fields are correctly stored in the database
+   - Compare a sample of raw API responses with the stored database records
+   - Check that all application features using planet data continue to function correctly
+
+4. Regression testing:
+   - Ensure that existing queries and reports using planet data still work
+   - Verify that any dependent services can still access the required planet information
+
+5. Documentation validation:
+   - Review updated API documentation for accuracy
+   - Confirm schema diagrams match the implemented database structure
+
+The testing should be documented with screenshots of before/after database records and API responses to demonstrate successful implementation.
