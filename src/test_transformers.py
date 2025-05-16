@@ -11,12 +11,13 @@ from test_utils import clean_test_db, assert_using_test_db
 
 def test_planet_transformer():
     transformer = PlanetTransformer()
-    # Pass a list of dicts as expected
+    # Pass a list of (planet_id, planet_data) tuples as expected
     result = transformer.transform([
-        {'name': 'Test', 'sector': 1, 'liberation_status': 'Liberated', 'biome': None, 'environmentals': []}
+        (123, {'name': 'Test', 'sector': 1, 'biome': None, 'environmentals': []})
     ])
     assert isinstance(result, list)
     assert result[0]['name'] == 'Test'
+    assert result[0]['id'] == 123
 
 def test_war_status_transformer():
     transformer = WarStatusTransformer()

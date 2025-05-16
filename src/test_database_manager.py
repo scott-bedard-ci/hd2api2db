@@ -5,8 +5,14 @@ import json
 
 def test_upsert_planet():
     db = DatabaseManager()
-    planet_id = db.upsert_planet({'name': 'TestPlanet', 'sector': 1, 'liberation_status': 'Liberated'}, biome_id=1)
-    assert planet_id is not None
+    planet_id = db.upsert_planet({'id': 123, 'name': 'TestPlanet', 'sector': 1}, biome_id=1)
+    assert planet_id == 123
+
+def test_upsert_planet_id_zero():
+    db = DatabaseManager()
+    # Test upserting planet_id 0 (Super Earth)
+    planet_id = db.upsert_planet({'id': 0, 'name': 'Super Earth', 'sector': 0}, biome_id=1)
+    assert planet_id == 0
 
 def test_upsert_war_status():
     db = DatabaseManager()

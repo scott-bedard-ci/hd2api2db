@@ -59,21 +59,20 @@ This project provides a robust, testable, and schedulable data pipeline for the 
   - This ensures all foreign key references to factions succeed, even if the name is not yet known.
 
 - **Planets:**
-  - All planets are ingested first.
-  - The pipeline force-adds a planet with id 0 and name 'Unknown' to handle API edge cases where planet_id 0 is referenced.
-  - This prevents foreign key errors for planet_id 0 in planet_infos and home_worlds.
+  - All planet IDs, including 0 (Super Earth), are now present in the API and imported directly.
+  - The planets table uses the API's id as the primary key (not auto-increment), so planet_id 0 is supported natively.
 
 - **Ingestion Order:**
   1. Planets
   2. Campaigns (creates most factions)
-  3. war_info (ensures all referenced factions and planet_id 0 exist)
+  3. war_info (ensures all referenced factions exist)
   4. war_status
   5. news
   6. major_orders
   7. planet_history
 
 - **Robustness:**
-  - The pipeline is robust to new/unknown factions and planet_id 0 from the API. Placeholder entries are created as needed and can be updated later when real data is available.
+  - The pipeline is robust to new/unknown factions from the API. Placeholder entries are created as needed and can be updated later when real data is available.
 
 ## ❓ FAQ / Troubleshooting
 

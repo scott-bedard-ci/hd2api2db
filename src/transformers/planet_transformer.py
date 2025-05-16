@@ -2,10 +2,10 @@ from datetime import datetime
 
 class PlanetTransformer:
     @staticmethod
-    def transform(planets_data):
-        """Transform raw planet data from API to a normalized ingest format."""
+    def transform(planet_items):
+        """Transform (planet_id, planet_data) pairs from API to a normalized ingest format with id."""
         transformed_planets = []
-        for planet in planets_data:
+        for planet_id, planet in planet_items:
             biome = planet.get('biome')
             if biome:
                 biome_info = {
@@ -19,6 +19,7 @@ class PlanetTransformer:
                 for env in planet.get('environmentals', [])
             ]
             transformed_planet = {
+                'id': int(planet_id),
                 'name': planet.get('name'),
                 'sector': planet.get('sector'),
                 'biome': biome_info,

@@ -27,9 +27,6 @@ class WarInfoFetcher:
             for faction_id in faction_ids:
                 self.db_manager.get_or_create_faction_by_id(faction_id)
 
-            # Ensure planet_id 0 exists for API edge case
-            self.db_manager.ensure_unknown_planet()
-
             self.logger.info("Storing war_info row")
             self.db_manager.upsert_war_info(transformed['war_info'])
 

@@ -20,26 +20,21 @@ class DatabaseManager:
     def get_connection(self):
         return self.pool.get_connection()
 
-    def upsert_planet(self, planet_data):
+    def upsert_planet(self, planet_data, biome_id):
         conn = self.get_connection()
         cursor = conn.cursor()
         try:
-            query = """
-            INSERT INTO planets (name, sector, liberation_status)
-            VALUES (%s, %s, %s)
-            ON DUPLICATE KEY UPDATE
-                sector=VALUES(sector),
-                liberation_status=VALUES(liberation_status)
-            """
-            cursor.execute(query, (
-                planet_data['name'],
-                planet_data['sector'],
-                planet_data['liberation_status'],
-            ))
+            # Upsert by id (from API)
+            cursor.execute("SELECT id FROM planets WHERE id = %s", (planet_data['id'],))
+            row = cursor.fetchone()
+            if row:
+                planet_id = row[0]
+                cursor.execute("UPDATE planets SET name = %s, sector = %s, biome_id = %s WHERE id = %s", (planet_data['name'], planet_data['sector'], biome_id, planet_id))
+            else:
+                cursor.execute("INSERT INTO planets (id, name, sector, biome_id) VALUES (%s, %s, %s, %s)", (planet_data['id'], planet_data['name'], planet_data['sector'], biome_id))
+                planet_id = planet_data['id']
             conn.commit()
-        except Exception as e:
-            conn.rollback()
-            raise
+            return planet_id
         finally:
             cursor.close()
             conn.close()
@@ -216,6 +211,7 @@ class DatabaseManager:
     def upsert_planet_history(self, planet_history_data):
         conn = self.get_connection()
         cursor = conn.cursor()
+        missing_planet_ids = []
         try:
             query = """
             INSERT INTO planet_history (planet_id, timestamp, status, current_health, max_health, player_count)
@@ -226,30 +222,31 @@ class DatabaseManager:
                 max_health=VALUES(max_health),
                 player_count=VALUES(player_count)
             """
-            cursor.execute(query, (
-                planet_history_data['planet_id'],
-                planet_history_data['timestamp'],
-                planet_history_data['status'],
-                planet_history_data['current_health'],
-                planet_history_data['max_health'],
-                planet_history_data['player_count'],
-            ))
-            conn.commit()
-            return None  # No error
-        except mysql_errors.IntegrityError as e:
-            conn.rollback()
-            # MySQL error code 1452: Cannot add or update a child row: a foreign key constraint fails
-            if e.errno == 1452:
-                return {
-                    'missing_planet_id': planet_history_data['planet_id'],
-                    'context': {
-                        'timestamp': planet_history_data.get('timestamp'),
-                        'status': planet_history_data.get('status'),
-                    },
-                    'error': str(e)
-                }
-            else:
-                raise
+            try:
+                cursor.execute(query, (
+                    planet_history_data['planet_id'],
+                    planet_history_data['timestamp'],
+                    planet_history_data['status'],
+                    planet_history_data['current_health'],
+                    planet_history_data['max_health'],
+                    planet_history_data['player_count'],
+                ))
+                conn.commit()
+                return None  # No error
+            except mysql_errors.IntegrityError as e:
+                conn.rollback()
+                if e.errno == 1452:
+                    missing_planet_ids.append(planet_history_data['planet_id'])
+                    return {
+                        'missing_planet_id': planet_history_data['planet_id'],
+                        'context': {
+                            'timestamp': planet_history_data.get('timestamp'),
+                            'status': planet_history_data.get('status'),
+                        },
+                        'error': str(e)
+                    }
+                else:
+                    raise
         except Exception as e:
             conn.rollback()
             raise
@@ -283,25 +280,6 @@ class DatabaseManager:
             cursor.execute("INSERT INTO environmentals (name, description) VALUES (%s, %s)", (name, description))
             conn.commit()
             return cursor.lastrowid
-        finally:
-            cursor.close()
-            conn.close()
-
-    def upsert_planet(self, planet_data, biome_id):
-        conn = self.get_connection()
-        cursor = conn.cursor()
-        try:
-            # Upsert by name and sector (assume unique together)
-            cursor.execute("SELECT id FROM planets WHERE name = %s AND sector = %s", (planet_data['name'], planet_data['sector']))
-            row = cursor.fetchone()
-            if row:
-                planet_id = row[0]
-                cursor.execute("UPDATE planets SET biome_id = %s WHERE id = %s", (biome_id, planet_id))
-            else:
-                cursor.execute("INSERT INTO planets (name, sector, biome_id) VALUES (%s, %s, %s)", (planet_data['name'], planet_data['sector'], biome_id))
-                planet_id = cursor.lastrowid
-            conn.commit()
-            return planet_id
         finally:
             cursor.close()
             conn.close()
@@ -444,22 +422,6 @@ class DatabaseManager:
         except Exception as e:
             conn.rollback()
             raise
-        finally:
-            cursor.close()
-            conn.close()
-
-    # The Helldivers 2 API sometimes references planet_id 0 in war_info, planet_infos, or home_worlds.
-    # This planet does not exist in the real data, but must be present in the DB to satisfy foreign key constraints.
-    # We force-add planet_id 0 with name 'Unknown' to prevent ingestion failures.
-    def ensure_unknown_planet(self):
-        conn = self.get_connection()
-        cursor = conn.cursor()
-        try:
-            cursor.execute("SELECT id FROM planets WHERE id = 0")
-            row = cursor.fetchone()
-            if not row:
-                cursor.execute("INSERT INTO planets (id, name, sector, liberation_status) VALUES (0, 'Unknown', 0, 'Unknown')")
-                conn.commit()
         finally:
             cursor.close()
             conn.close()

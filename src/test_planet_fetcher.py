@@ -19,4 +19,20 @@ def test_planet_fetch_and_store():
     # Run fetch and store
     success = fetcher.fetch_and_store()
     assert success is not None
-    print('test_planet_fetch_and_store passed') 
+    print('test_planet_fetch_and_store passed')
+
+def test_planet_fetch_and_store_id_zero():
+    # Dummy API client and transformer to simulate planet_id 0
+    class DummyApiClient:
+        def get_planets(self):
+            return {0: {'name': 'Super Earth', 'sector': 0, 'biome': None, 'environmentals': []}}
+    class DummyTransformer:
+        def transform(self, items):
+            return [
+                {'id': 0, 'name': 'Super Earth', 'sector': 0, 'biome': None, 'environmentals': []}
+            ]
+    db_manager = DatabaseManager()
+    fetcher = PlanetFetcher(DummyApiClient(), DummyTransformer(), db_manager)
+    success = fetcher.fetch_and_store()
+    assert success is not None
+    print('test_planet_fetch_and_store_id_zero passed') 

@@ -11,15 +11,21 @@ class PlanetFetcher:
         try:
             self.logger.info("Fetching planet data")
             planet_data = self.api_client.get_planets()
+            # If dict, keep items for id; if list, enumerate for id
             if isinstance(planet_data, dict):
-                planet_data = list(planet_data.values())
+                items = planet_data.items()
+            elif isinstance(planet_data, list):
+                items = enumerate(planet_data)
+            else:
+                self.logger.error("Unexpected planet data structure")
+                return False
 
             self.logger.info("Transforming planet data")
-            transformed_data = self.transformer.transform(planet_data)
+            transformed_data = self.transformer.transform(items)
 
             self.logger.info("Storing planet data")
             for planet in transformed_data:
-                print(f"Importing planet: {planet['name']}")
+                print(f"Importing planet: {planet['name']} (id: {planet['id']})")
                 # 1. Biome
                 biome_id = None
                 if planet['biome'] and planet['biome']['slug']:
