@@ -249,8 +249,7 @@ All code should be tested and follow project conventions.
 
 ## 🏅 Credits
 
-- **Project Lead:** [Your Name](https://github.com/YOUR_USERNAME)
-- **Contributors:** See [GitHub contributors](https://github.com/YOUR_USERNAME/helldivers2-pipeline/graphs/contributors)
+- **Project Lead:** [Scott Bedard](https://github.com/scott-bedard-ci)
 - **Inspired by:** The Helldivers 2 community
 
 ---
