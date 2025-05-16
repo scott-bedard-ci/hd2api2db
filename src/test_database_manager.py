@@ -5,11 +5,25 @@ import json
 
 def test_upsert_planet():
     db = DatabaseManager()
+    # Ensure biome_id=1 exists
+    conn = db.get_connection()
+    cursor = conn.cursor()
+    cursor.execute("INSERT IGNORE INTO biomes (id, slug, description) VALUES (1, 'test-biome', 'Test Biome')")
+    conn.commit()
+    cursor.close()
+    conn.close()
     planet_id = db.upsert_planet({'id': 123, 'name': 'TestPlanet', 'sector': 1}, biome_id=1)
     assert planet_id == 123
 
 def test_upsert_planet_id_zero():
     db = DatabaseManager()
+    # Ensure biome_id=1 exists
+    conn = db.get_connection()
+    cursor = conn.cursor()
+    cursor.execute("INSERT IGNORE INTO biomes (id, slug, description) VALUES (1, 'test-biome', 'Test Biome')")
+    conn.commit()
+    cursor.close()
+    conn.close()
     # Test upserting planet_id 0 (Super Earth)
     planet_id = db.upsert_planet({'id': 0, 'name': 'Super Earth', 'sector': 0}, biome_id=1)
     assert planet_id == 0
@@ -29,6 +43,13 @@ def test_upsert_news():
 
 def test_upsert_campaign():
     db = DatabaseManager()
+    # Ensure biome_id=1 exists
+    conn = db.get_connection()
+    cursor = conn.cursor()
+    cursor.execute("INSERT IGNORE INTO biomes (id, slug, description) VALUES (1, 'test-biome', 'Test Biome')")
+    conn.commit()
+    cursor.close()
+    conn.close()
     campaign_data = {'name': 'Operation Freedom', 'planet_index': 1, 'defense': 100, 'expire_datetime': '2024-01-01 00:00:00', 'health': 100, 'max_health': 200, 'percentage': 50, 'players': 10}
     db.upsert_campaign(campaign_data, biome_id=1, faction_id=1)
 
