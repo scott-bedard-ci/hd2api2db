@@ -106,17 +106,35 @@ mysql -u root -p < migrations/schema.sql
 
 ### 3. Configure
 
-Create a `.env` file or edit `config.yaml` (see `src/config.py` for options):
+Create a `.env` file in your project root with the following variables:
 
 ```env
-MYSQL_HOST=localhost
-MYSQL_PORT=3306
-MYSQL_USER=youruser
-MYSQL_PASSWORD=yourpassword
-MYSQL_DATABASE=helldivers2
-LOG_LEVEL=INFO
-UPDATE_INTERVAL_HOURS=24
+# Live Database Credentials
+LIVE_DB_HOST=localhost
+LIVE_DB_PORT=3306
+LIVE_DB_NAME=helldivers2
+LIVE_DB_USER=youruser
+LIVE_DB_PASSWORD=yourpassword
+
+# Test Database Credentials
+TEST_DB_HOST=localhost
+TEST_DB_PORT=3306
+TEST_DB_NAME=helldivers2_test
+TEST_DB_USER=youruser
+TEST_DB_PASSWORD=yourpassword
+
+# Set to 'true' to force use of test DB (used by test framework)
+USE_TEST_DB=false
 ```
+
+- The application will use `LIVE_DB_*` for production/dev, and `TEST_DB_*` for tests if `USE_TEST_DB=true`.
+- The test framework automatically sets `USE_TEST_DB=true` and all `TEST_DB_*` variables for every test, ensuring test isolation and safety.
+- You no longer need to set or use legacy `DB_*` variables.
+
+**Test Isolation:**
+- All tests are run against the test database, never the live database.
+- The test framework uses `monkeypatch.setenv` to override the environment for every test run.
+- If any code attempts to use the live database during tests, the test will abort for safety.
 
 ### 4. Run a Full Update
 

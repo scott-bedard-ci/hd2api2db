@@ -6,15 +6,29 @@ from mysql.connector import errors as mysql_errors
 
 load_dotenv()
 
+# Helper to select DB credentials based on USE_TEST_DB
+def get_db_credentials():
+    use_test_db = os.getenv("USE_TEST_DB", "false").lower() == "true"
+    prefix = "TEST_DB_" if use_test_db else "LIVE_DB_"
+    return {
+        "host": os.getenv(f"{prefix}HOST", "localhost"),
+        "port": int(os.getenv(f"{prefix}PORT", 3306)),
+        "user": os.getenv(f"{prefix}USER", "root"),
+        "password": os.getenv(f"{prefix}PASSWORD", ""),
+        "database": os.getenv(f"{prefix}NAME", "helldivers2_test" if use_test_db else "helldivers2"),
+    }
+
 class DatabaseManager:
     def __init__(self):
+        creds = get_db_credentials()
         self.pool = pooling.MySQLConnectionPool(
             pool_name="helldivers2_pool",
             pool_size=5,
-            host=os.getenv("DB_HOST", "localhost"),
-            user=os.getenv("DB_USER", "root"),
-            password=os.getenv("DB_PASSWORD", ""),
-            database=os.getenv("DB_NAME", "helldivers2"),
+            host=creds["host"],
+            port=creds["port"],
+            user=creds["user"],
+            password=creds["password"],
+            database=creds["database"],
         )
 
     def get_connection(self):
