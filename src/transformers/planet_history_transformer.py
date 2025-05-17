@@ -1,3 +1,5 @@
+"""Transforms planet history API responses for storage."""
+
 from datetime import datetime
 
 class PlanetHistoryTransformer:

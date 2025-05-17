@@ -1,6 +1,9 @@
+"""Updates the current war status and planet metrics."""
+
 import logging
 
 class WarStatusFetcher:
+    """Handles fetching, transforming and persisting war status."""
     def __init__(self, api_client, transformer, db_manager):
         self.api_client = api_client
         self.transformer = transformer

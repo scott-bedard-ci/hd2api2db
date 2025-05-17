@@ -1,6 +1,9 @@
+"""Fetches major orders and writes them to the database."""
+
 import logging
 
 class MajorOrdersFetcher:
+    """Coordinates retrieval and storage of major orders."""
     def __init__(self, api_client, transformer, db_manager):
         self.api_client = api_client
         self.transformer = transformer

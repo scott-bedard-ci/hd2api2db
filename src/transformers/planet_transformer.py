@@ -1,3 +1,5 @@
+"""Normalizes planet API results for database insertion."""
+
 from datetime import datetime
 
 class PlanetTransformer:

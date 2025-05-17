@@ -1,9 +1,12 @@
+"""Configuration loading and logging setup utilities."""
+
 import os
 import json
 import logging
 from logging.handlers import RotatingFileHandler
 
 class Config:
+    """Load settings from a file or environment variables."""
     def __init__(self, config_file=None):
         self.settings = {
             'DB_HOST': 'localhost',

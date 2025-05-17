@@ -1,3 +1,5 @@
+"""Shared pytest fixtures for database setup and environment configuration."""
+
 import pytest
 import os
 from test_utils import clean_test_db, assert_using_test_db

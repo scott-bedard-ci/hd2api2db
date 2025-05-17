@@ -1,3 +1,5 @@
+"""Converts war info API response to war, planet, and home world records."""
+
 import json
 from datetime import datetime
 

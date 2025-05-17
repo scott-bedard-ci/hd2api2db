@@ -1,3 +1,5 @@
+"""Tests for the configuration and logging utilities."""
+
 import os
 import json
 import logging
