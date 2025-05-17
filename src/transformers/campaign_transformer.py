@@ -1,3 +1,5 @@
+"""Transforms campaign API responses into DB-ready dictionaries."""
+
 from datetime import datetime
 
 class CampaignTransformer:

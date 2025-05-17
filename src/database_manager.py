@@ -1,3 +1,5 @@
+"""Database access layer with connection pooling and upsert helpers."""
+
 import os
 import mysql.connector
 from mysql.connector import pooling
@@ -19,6 +21,7 @@ def get_db_credentials():
     }
 
 class DatabaseManager:
+    """Manages the connection pool and provides upsert methods for entities."""
     def __init__(self):
         creds = get_db_credentials()
         self.pool = pooling.MySQLConnectionPool(

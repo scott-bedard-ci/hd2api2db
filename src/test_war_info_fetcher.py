@@ -1,3 +1,4 @@
+"""Tests for the ``WarInfoFetcher`` module."""
 # Fixtures removed; now using shared fixtures from conftest.py
 
 import pytest

@@ -1,3 +1,5 @@
+"""Transforms news API entries into database format."""
+
 from datetime import datetime
 import logging
 import json

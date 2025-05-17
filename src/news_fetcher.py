@@ -1,6 +1,9 @@
+"""Fetches news entries and persists them via the database manager."""
+
 import logging
 
 class NewsFetcher:
+    """Handle retrieval and storage of news via ``fetch_and_store``."""
     def __init__(self, api_client, transformer, db_manager):
         self.api_client = api_client
         self.transformer = transformer

@@ -1,3 +1,5 @@
+"""Integration tests for the ``UpdateOrchestrator`` class."""
+
 import pytest
 from update_orchestrator import UpdateOrchestrator
 from config import Config, setup_logging

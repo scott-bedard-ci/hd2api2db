@@ -1,6 +1,9 @@
+"""Fetches campaign data from the API and stores it in MySQL."""
+
 import logging
 
 class CampaignFetcher:
+    """Retrieve and persist campaign information via ``fetch_and_store``."""
     def __init__(self, api_client, transformer, db_manager):
         self.api_client = api_client
         self.transformer = transformer

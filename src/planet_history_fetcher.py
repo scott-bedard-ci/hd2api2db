@@ -1,6 +1,9 @@
+"""Collects historical planet data for all planets."""
+
 import logging
 
 class PlanetHistoryFetcher:
+    """Downloads planet history and records each entry."""
     def __init__(self, api_client, transformer, db_manager):
         self.api_client = api_client
         self.transformer = transformer

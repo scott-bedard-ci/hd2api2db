@@ -1,3 +1,5 @@
+"""Runs each fetcher in sequence to refresh the local database."""
+
 import logging
 from datetime import datetime
 from helldivers_api_client import Helldivers2ApiClient
@@ -18,6 +20,7 @@ from transformers.war_info_transformer import WarInfoTransformer
 from war_info_fetcher import WarInfoFetcher
 
 class UpdateOrchestrator:
+    """Initialize clients and coordinate the update workflow."""
     def __init__(self, config):
         self.config = config
         self.logger = logging.getLogger(__name__)

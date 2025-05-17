@@ -1,3 +1,5 @@
+"""Transforms war status responses into database-friendly structures."""
+
 from datetime import datetime, UTC
 
 class WarStatusTransformer:

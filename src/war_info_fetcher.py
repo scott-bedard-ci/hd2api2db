@@ -1,7 +1,10 @@
+"""Fetches static war information such as planet layout and home worlds."""
+
 import logging
 from transformers.war_info_transformer import WarInfoTransformer
 
 class WarInfoFetcher:
+    """Load and store war info, ensuring referenced factions exist."""
     def __init__(self, api_client, db_manager):
         self.api_client = api_client
         self.db_manager = db_manager

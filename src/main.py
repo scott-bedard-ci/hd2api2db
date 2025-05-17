@@ -1,3 +1,5 @@
+"""Command line interface for running and scheduling pipeline updates."""
+
 import argparse
 import sys
 import os

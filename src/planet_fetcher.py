@@ -1,6 +1,9 @@
+"""Imports planet definitions and their environmentals."""
+
 import logging
 
 class PlanetFetcher:
+    """Transforms planet data and persists each record."""
     def __init__(self, api_client, transformer, db_manager):
         self.api_client = api_client
         self.transformer = transformer

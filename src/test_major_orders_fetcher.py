@@ -1,3 +1,4 @@
+"""Tests for the ``MajorOrdersFetcher`` component."""
 # Fixtures removed; now using shared fixtures from conftest.py
 
 import pytest
