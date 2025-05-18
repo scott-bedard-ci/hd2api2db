@@ -1,17 +1,20 @@
 """Fetches static war information such as planet layout and home worlds."""
-
+from __future__ import annotations
 import logging
+from typing import Any
 from transformers.war_info_transformer import WarInfoTransformer
 
 class WarInfoFetcher:
     """Load and store war info, ensuring referenced factions exist."""
+    def __init__(self, api_client: Any, db_manager: Any) -> None:
     def __init__(self, api_client, db_manager):
+
         self.api_client = api_client
         self.db_manager = db_manager
         self.transformer = WarInfoTransformer()
         self.logger = logging.getLogger(__name__)
 
-    def fetch_and_store(self):
+    def fetch_and_store(self) -> bool:
         try:
             self.logger.info("Fetching war info data")
             war_info_data = self.api_client.get_war_info()
@@ -47,4 +50,4 @@ class WarInfoFetcher:
             return True
         except Exception as e:
             self.logger.error(f"Error updating war info data: {str(e)}")
-            return False 
+            return False

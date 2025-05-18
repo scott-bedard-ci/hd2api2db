@@ -1,18 +1,20 @@
 """HTTP client wrapper for the Helldivers 2 API with retry support."""
-
+from __future__ import annotations
 import requests
 import logging
 import time
+import requests
+from typing import Any, Dict, Optional
 
 class Helldivers2ApiClient:
     """Simple wrapper exposing methods for each Helldivers API endpoint."""
     BASE_URL = 'https://helldiverstrainingmanual.com/api/v1/war'
 
-    def __init__(self, max_retries=3, timeout=10):
+    def __init__(self, max_retries: int = 3, timeout: int = 10) -> None:
         self.max_retries = max_retries
         self.timeout = timeout
 
-    def _make_request(self, endpoint, params=None):
+    def _make_request(self, endpoint: str, params: Optional[Dict[str, Any]] = None) -> Any:
         url = f"{self.BASE_URL}/{endpoint}"
         retry_count = 0
         while retry_count < self.max_retries:
@@ -29,28 +31,28 @@ class Helldivers2ApiClient:
                 logging.warning(f"Retrying {url} in {wait_time} seconds...")
                 time.sleep(wait_time)
 
-    def get_war_status(self):
+    def get_war_status(self) -> Any:
         return self._make_request('status')
 
-    def get_war_info(self):
+    def get_war_info(self) -> Any:
         return self._make_request('info')
 
-    def get_news(self, from_time=None):
+    def get_news(self, from_time: Optional[int] = None) -> Any:
         params = {'from': from_time} if from_time else None
         return self._make_request('news', params=params)
 
-    def get_campaign(self):
+    def get_campaign(self) -> Any:
         return self._make_request('campaign')
 
-    def get_planet_history(self, planet_index, timeframe=None):
+    def get_planet_history(self, planet_index: int, timeframe: Optional[str] = None) -> Any:
         endpoint = f"history/{planet_index}"
         params = {'timeframe': timeframe} if timeframe else None
         return self._make_request(endpoint, params=params)
 
-    def get_major_orders(self):
+    def get_major_orders(self) -> Any:
         return self._make_request('major-orders')
 
-    def get_planets(self):
+    def get_planets(self) -> Any:
         # This endpoint is outside the /war path
         url = 'https://helldiverstrainingmanual.com/api/v1/planets'
         retry_count = 0
@@ -68,5 +70,5 @@ class Helldivers2ApiClient:
                 logging.warning(f"Retrying {url} in {wait_time} seconds...")
                 time.sleep(wait_time)
 
-    def get_campaigns(self):
-        return self._make_request('campaign') 
+    def get_campaigns(self) -> Any:
+        return self._make_request('campaign')

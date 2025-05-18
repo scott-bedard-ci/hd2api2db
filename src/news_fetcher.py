@@ -1,16 +1,18 @@
 """Fetches news entries and persists them via the database manager."""
-
+from __future__ import annotations
 import logging
+from typing import Any
 
 class NewsFetcher:
     """Handle retrieval and storage of news via ``fetch_and_store``."""
-    def __init__(self, api_client, transformer, db_manager):
+    def __init__(self, api_client: Any, transformer: Any, db_manager: Any) -> None:
+
         self.api_client = api_client
         self.transformer = transformer
         self.db_manager = db_manager
         self.logger = logging.getLogger(__name__)
 
-    def fetch_and_store(self):
+    def fetch_and_store(self) -> bool:
         try:
             self.logger.info("Fetching news data")
             news_data = self.api_client.get_news()
@@ -27,4 +29,4 @@ class NewsFetcher:
             return True
         except Exception as e:
             self.logger.error(f"Error updating news data: {str(e)}")
-            return False 
+            return False

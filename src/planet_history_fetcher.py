@@ -1,17 +1,18 @@
 """Collects historical planet data for all planets."""
-
+from __future__ import annotations
 import logging
+from typing import Any, Dict, List, Optional
 
 class PlanetHistoryFetcher:
     """Downloads planet history and records each entry."""
-    def __init__(self, api_client, transformer, db_manager):
+    def __init__(self, api_client: Any, transformer: Any, db_manager: Any) -> None:
         self.api_client = api_client
         self.transformer = transformer
         self.db_manager = db_manager
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.ERROR)  # Only log ERROR and above for this fetcher
 
-    def fetch_and_store(self):
+    def fetch_and_store(self) -> Any:
         try:
             self.logger.info("Fetching all planets for history update")
             planets = self.api_client.get_planets()
@@ -58,4 +59,4 @@ class PlanetHistoryFetcher:
             }
         except Exception as e:
             self.logger.error(f"Error in planet history update process: {str(e)}")
-            return False 
+            return False

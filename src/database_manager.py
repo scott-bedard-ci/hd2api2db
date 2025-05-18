@@ -1,3 +1,4 @@
+from __future__ import annotations
 """Database access layer with connection pooling and upsert helpers."""
 
 import os
@@ -5,11 +6,12 @@ import mysql.connector
 from mysql.connector import pooling
 from dotenv import load_dotenv
 from mysql.connector import errors as mysql_errors
+from typing import Any, Dict, Iterable, List, Optional
 
 load_dotenv()
 
 # Helper to select DB credentials based on USE_TEST_DB
-def get_db_credentials():
+def get_db_credentials() -> Dict[str, Any]:
     use_test_db = os.getenv("USE_TEST_DB", "false").lower() == "true"
     prefix = "TEST_DB_" if use_test_db else "LIVE_DB_"
     return {
@@ -22,7 +24,8 @@ def get_db_credentials():
 
 class DatabaseManager:
     """Manages the connection pool and provides upsert methods for entities."""
-    def __init__(self):
+    def __init__(self) -> None:
+
         creds = get_db_credentials()
         self.pool = pooling.MySQLConnectionPool(
             pool_name="helldivers2_pool",
@@ -34,10 +37,10 @@ class DatabaseManager:
             database=creds["database"],
         )
 
-    def get_connection(self):
+    def get_connection(self) -> Any:
         return self.pool.get_connection()
 
-    def upsert_planet(self, planet_data, biome_id):
+    def upsert_planet(self, planet_data: Dict[str, Any], biome_id: Optional[int]) -> int:
         conn = self.get_connection()
         cursor = conn.cursor()
         try:
@@ -56,7 +59,7 @@ class DatabaseManager:
             cursor.close()
             conn.close()
 
-    def upsert_war_status(self, data):
+    def upsert_war_status(self, data: Dict[str, Any]) -> None:
         """
         Expects data to be a dict with 'war_status' and 'planet_status' keys.
         'war_status' is a dict for the war_status table.
@@ -111,7 +114,7 @@ class DatabaseManager:
             cursor.close()
             conn.close()
 
-    def upsert_news(self, news_data):
+    def upsert_news(self, news_data: Dict[str, Any]) -> None:
         conn = self.get_connection()
         cursor = conn.cursor()
         try:
@@ -140,7 +143,12 @@ class DatabaseManager:
             cursor.close()
             conn.close()
 
-    def upsert_campaign(self, campaign_data, biome_id, faction_id):
+    def upsert_campaign(
+        self,
+        campaign_data: Dict[str, Any],
+        biome_id: Optional[int],
+        faction_id: Optional[int],
+    ) -> None:
         conn = self.get_connection()
         cursor = conn.cursor()
         try:
@@ -177,7 +185,7 @@ class DatabaseManager:
             cursor.close()
             conn.close()
 
-    def upsert_major_order(self, major_order_data):
+    def upsert_major_order(self, major_order_data: Dict[str, Any]) -> None:
         conn = self.get_connection()
         cursor = conn.cursor()
         try:
@@ -225,7 +233,7 @@ class DatabaseManager:
             cursor.close()
             conn.close()
 
-    def upsert_planet_history(self, planet_history_data):
+    def upsert_planet_history(self, planet_history_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         conn = self.get_connection()
         cursor = conn.cursor()
         missing_planet_ids = []
@@ -271,7 +279,7 @@ class DatabaseManager:
             cursor.close()
             conn.close()
 
-    def get_or_create_biome(self, slug, description):
+    def get_or_create_biome(self, slug: str, description: str) -> int:
         conn = self.get_connection()
         cursor = conn.cursor()
         try:
@@ -286,7 +294,7 @@ class DatabaseManager:
             cursor.close()
             conn.close()
 
-    def get_or_create_environmental(self, name, description):
+    def get_or_create_environmental(self, name: str, description: str) -> int:
         conn = self.get_connection()
         cursor = conn.cursor()
         try:
@@ -301,7 +309,7 @@ class DatabaseManager:
             cursor.close()
             conn.close()
 
-    def upsert_planet_environmentals(self, planet_id, environmental_ids):
+    def upsert_planet_environmentals(self, planet_id: int, environmental_ids: Iterable[int]) -> None:
         conn = self.get_connection()
         cursor = conn.cursor()
         try:
@@ -315,7 +323,7 @@ class DatabaseManager:
             cursor.close()
             conn.close()
 
-    def get_or_create_faction(self, name):
+    def get_or_create_faction(self, name: str) -> int:
         conn = self.get_connection()
         cursor = conn.cursor()
         try:
@@ -330,7 +338,7 @@ class DatabaseManager:
             cursor.close()
             conn.close()
 
-    def get_or_create_faction_by_id(self, faction_id):
+    def get_or_create_faction_by_id(self, faction_id: int) -> int:
         conn = self.get_connection()
         cursor = conn.cursor()
         try:
@@ -345,7 +353,7 @@ class DatabaseManager:
             cursor.close()
             conn.close()
 
-    def upsert_war_info(self, war_info_data):
+    def upsert_war_info(self, war_info_data: Dict[str, Any]) -> None:
         conn = self.get_connection()
         cursor = conn.cursor()
         try:
@@ -378,7 +386,7 @@ class DatabaseManager:
             cursor.close()
             conn.close()
 
-    def upsert_planet_infos(self, war_id, planet_infos):
+    def upsert_planet_infos(self, war_id: int, planet_infos: Iterable[Dict[str, Any]]) -> List[Dict[str, Any]]:
         conn = self.get_connection()
         cursor = conn.cursor()
         skipped = []
@@ -417,7 +425,7 @@ class DatabaseManager:
             cursor.close()
             conn.close()
 
-    def upsert_home_worlds(self, war_id, home_worlds):
+    def upsert_home_worlds(self, war_id: int, home_worlds: Iterable[Dict[str, Any]]) -> None:
         conn = self.get_connection()
         cursor = conn.cursor()
         try:
@@ -443,4 +451,4 @@ class DatabaseManager:
             cursor.close()
             conn.close()
 
-    # Add similar methods for war_status, news, campaigns, major_orders, planet_history 
+    # Add similar methods for war_status, news, campaigns, major_orders, planet_history

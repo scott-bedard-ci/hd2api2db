@@ -1,11 +1,12 @@
 """Converts war info API response to war, planet, and home world records."""
-
+from __future__ import annotations
 import json
 from datetime import datetime
+from typing import Any, Dict
 
 class WarInfoTransformer:
     @staticmethod
-    def transform(war_info_data):
+    def transform(war_info_data: Dict[str, Any]) -> Dict[str, Any]:
         # Top-level war_info row
         war_info = {
             'war_id': war_info_data['warId'],
@@ -45,4 +46,4 @@ class WarInfoTransformer:
             'war_info': war_info,
             'planet_infos': planet_infos,
             'home_worlds': home_worlds
-        } 
+        }

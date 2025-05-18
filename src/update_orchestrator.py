@@ -1,7 +1,8 @@
 """Runs each fetcher in sequence to refresh the local database."""
-
+from __future__ import annotations
 import logging
 from datetime import datetime
+from typing import Any, Dict
 from helldivers_api_client import Helldivers2ApiClient
 from database_manager import DatabaseManager
 from transformers.war_status_transformer import WarStatusTransformer
@@ -21,8 +22,10 @@ from war_info_fetcher import WarInfoFetcher
 
 class UpdateOrchestrator:
     """Initialize clients and coordinate the update workflow."""
+    def __init__(self, config: Dict[str, Any]):
     def __init__(self, config):
-        self.config = config
+
+      self.config = config
         self.logger = logging.getLogger(__name__)
 
         # Initialize components
@@ -47,7 +50,7 @@ class UpdateOrchestrator:
         self.planet_history_fetcher = PlanetHistoryFetcher(self.api_client, self.planet_history_transformer, self.db_manager)
         self.war_info_fetcher = WarInfoFetcher(self.api_client, self.db_manager)
 
-    def run_update(self):
+    def run_update(self) -> bool:
         start_time = datetime.now()
         self.logger.info(f"Starting Helldivers 2 data update at {start_time}")
 
@@ -102,4 +105,4 @@ class UpdateOrchestrator:
             status = "Success" if result else "Failed"
             self.logger.info(f"{name}: {status}")
 
-        return success_count == len(results) 
+        return success_count == len(results)

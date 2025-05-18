@@ -1,16 +1,17 @@
 """Fetches major orders and writes them to the database."""
-
+from __future__ import annotations
 import logging
+from typing import Any
 
 class MajorOrdersFetcher:
     """Coordinates retrieval and storage of major orders."""
-    def __init__(self, api_client, transformer, db_manager):
+    def __init__(self, api_client: Any, transformer: Any, db_manager: Any) -> None:
         self.api_client = api_client
         self.transformer = transformer
         self.db_manager = db_manager
         self.logger = logging.getLogger(__name__)
 
-    def fetch_and_store(self):
+    def fetch_and_store(self) -> bool:
         try:
             self.logger.info("Fetching major orders data")
             major_orders_data = self.api_client.get_major_orders()
@@ -27,4 +28,4 @@ class MajorOrdersFetcher:
             return True
         except Exception as e:
             self.logger.error(f"Error updating major orders data: {str(e)}")
-            return False 
+            return False

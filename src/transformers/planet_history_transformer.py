@@ -1,10 +1,14 @@
 """Transforms planet history API responses for storage."""
-
+from __future__ import annotations
 from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 class PlanetHistoryTransformer:
     @staticmethod
-    def transform(planet_history_data, planet_id=None):
+    def transform(
+        planet_history_data: List[Dict[str, Any]],
+        planet_id: Optional[int] = None,
+    ) -> List[Dict[str, Any]]:
         """Transform raw planet history data from API to database format."""
         transformed_history = []
         for entry in planet_history_data:
@@ -18,4 +22,4 @@ class PlanetHistoryTransformer:
                 'created_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             }
             transformed_history.append(transformed_item)
-        return transformed_history 
+        return transformed_history

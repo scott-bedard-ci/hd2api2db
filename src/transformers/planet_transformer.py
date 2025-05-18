@@ -1,10 +1,11 @@
 """Normalizes planet API results for database insertion."""
-
+from __future__ import annotations
 from datetime import datetime
+from typing import Any, Dict, Iterable, List
 
 class PlanetTransformer:
     @staticmethod
-    def transform(planet_items):
+    def transform(planet_items: Iterable[tuple[int, Dict[str, Any]]]) -> List[Dict[str, Any]]:
         """Transform (planet_id, planet_data) pairs from API to a normalized ingest format with id."""
         transformed_planets = []
         for planet_id, planet in planet_items:
@@ -28,4 +29,4 @@ class PlanetTransformer:
                 'environmentals': environmentals,
             }
             transformed_planets.append(transformed_planet)
-        return transformed_planets 
+        return transformed_planets

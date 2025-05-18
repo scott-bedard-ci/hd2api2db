@@ -91,8 +91,8 @@ cd helldivers2-pipeline
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-pip install -r requirements-dev.txt  # needed for running tests
-```
+# install test dependencies if you plan to run the suite
+pip install -r requirements-dev.txt
 
 ### 2. Set Up MySQL
 
@@ -190,6 +190,7 @@ tests/
 ## 🧪 Testing
 
 This project uses `pytest` for all automated testing. The test suite is fully migrated to pytest and uses shared fixtures for database setup and cleanup, located in `src/conftest.py`. This ensures all tests use the correct test database credentials and are isolated and repeatable.
+If you haven't installed the dev requirements yet, run `pip install -r requirements-dev.txt` to ensure `pytest` is available.
 
 Before running tests, install the development requirements:
 

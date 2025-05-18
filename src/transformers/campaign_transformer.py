@@ -1,11 +1,12 @@
 """Transforms campaign API responses into DB-ready dictionaries."""
-
+from __future__ import annotations
 from datetime import datetime
+from typing import Any, Dict, List
 
 class CampaignTransformer:
     @staticmethod
-    def transform(campaign_data):
-        """Transform raw campaign data from API to normalized ingest format."""
+    """Transform raw campaign data from API to normalized ingest format."""
+    def transform(campaign_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         transformed_campaigns = []
         for campaign in campaign_data:
             # Biome info
@@ -39,4 +40,4 @@ class CampaignTransformer:
                 'players': campaign.get('players'),
             }
             transformed_campaigns.append(transformed_item)
-        return transformed_campaigns 
+        return transformed_campaigns
