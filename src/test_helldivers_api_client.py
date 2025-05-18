@@ -1,3 +1,4 @@
+"""Tests for the ``Helldivers2ApiClient`` HTTP wrapper."""
 # Fixtures removed; now using shared fixtures from conftest.py
 
 import pytest

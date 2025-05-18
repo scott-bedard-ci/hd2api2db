@@ -1,10 +1,14 @@
 from __future__ import annotations
+"""Fetches campaign data from the API and stores it in MySQL."""
+
 
 import logging
 from typing import Any
 
 class CampaignFetcher:
+    """Retrieve and persist campaign information via ``fetch_and_store``."""
     def __init__(self, api_client: Any, transformer: Any, db_manager: Any) -> None:
+
         self.api_client = api_client
         self.transformer = transformer
         self.db_manager = db_manager

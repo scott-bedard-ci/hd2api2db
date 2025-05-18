@@ -1,5 +1,5 @@
+"""Transforms news API entries into database format."""
 from __future__ import annotations
-
 from datetime import datetime
 import logging
 import json

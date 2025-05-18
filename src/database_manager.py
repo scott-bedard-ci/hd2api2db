@@ -1,4 +1,5 @@
 from __future__ import annotations
+"""Database access layer with connection pooling and upsert helpers."""
 
 import os
 import mysql.connector
@@ -22,7 +23,9 @@ def get_db_credentials() -> Dict[str, Any]:
     }
 
 class DatabaseManager:
+    """Manages the connection pool and provides upsert methods for entities."""
     def __init__(self) -> None:
+
         creds = get_db_credentials()
         self.pool = pooling.MySQLConnectionPool(
             pool_name="helldivers2_pool",

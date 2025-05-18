@@ -1,5 +1,5 @@
+"""Transforms major order API data for ingestion."""
 from __future__ import annotations
-
 from datetime import datetime, timedelta
 import json
 from typing import Any, Dict, List

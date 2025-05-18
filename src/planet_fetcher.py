@@ -1,9 +1,10 @@
+"""Imports planet definitions and their environmentals."""
 from __future__ import annotations
-
 import logging
 from typing import Any, Iterable, Optional
 
 class PlanetFetcher:
+    """Transforms planet data and persists each record."""
     def __init__(
         self,
         api_client: Any,

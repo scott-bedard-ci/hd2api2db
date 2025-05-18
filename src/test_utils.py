@@ -1,3 +1,5 @@
+"""Utility helpers shared across tests for DB cleanup."""
+
 import os
 from database_manager import DatabaseManager
 

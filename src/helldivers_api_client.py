@@ -1,11 +1,13 @@
+"""HTTP client wrapper for the Helldivers 2 API with retry support."""
 from __future__ import annotations
-
+import requests
 import logging
 import time
 import requests
 from typing import Any, Dict, Optional
 
 class Helldivers2ApiClient:
+    """Simple wrapper exposing methods for each Helldivers API endpoint."""
     BASE_URL = 'https://helldiverstrainingmanual.com/api/v1/war'
 
     def __init__(self, max_retries: int = 3, timeout: int = 10) -> None:

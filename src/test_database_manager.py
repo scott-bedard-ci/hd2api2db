@@ -1,3 +1,5 @@
+"""Tests for the ``DatabaseManager`` utility functions."""
+
 import pytest
 from database_manager import DatabaseManager
 from test_utils import clean_test_db, assert_using_test_db

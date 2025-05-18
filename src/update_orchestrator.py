@@ -1,5 +1,5 @@
+"""Runs each fetcher in sequence to refresh the local database."""
 from __future__ import annotations
-
 import logging
 from datetime import datetime
 from typing import Any, Dict
@@ -21,8 +21,11 @@ from transformers.war_info_transformer import WarInfoTransformer
 from war_info_fetcher import WarInfoFetcher
 
 class UpdateOrchestrator:
+    """Initialize clients and coordinate the update workflow."""
     def __init__(self, config: Dict[str, Any]):
-        self.config = config
+    def __init__(self, config):
+
+      self.config = config
         self.logger = logging.getLogger(__name__)
 
         # Initialize components

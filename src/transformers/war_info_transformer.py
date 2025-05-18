@@ -1,5 +1,5 @@
+"""Converts war info API response to war, planet, and home world records."""
 from __future__ import annotations
-
 import json
 from datetime import datetime
 from typing import Any, Dict

@@ -1,9 +1,10 @@
+"""Collects historical planet data for all planets."""
 from __future__ import annotations
-
 import logging
 from typing import Any, Dict, List, Optional
 
 class PlanetHistoryFetcher:
+    """Downloads planet history and records each entry."""
     def __init__(self, api_client: Any, transformer: Any, db_manager: Any) -> None:
         self.api_client = api_client
         self.transformer = transformer

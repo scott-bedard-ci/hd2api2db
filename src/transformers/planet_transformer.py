@@ -1,5 +1,5 @@
+"""Normalizes planet API results for database insertion."""
 from __future__ import annotations
-
 from datetime import datetime
 from typing import Any, Dict, Iterable, List
 

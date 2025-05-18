@@ -1,5 +1,5 @@
+"""Transforms war status responses into database-friendly structures."""
 from __future__ import annotations
-
 from datetime import datetime, UTC
 from typing import Any, Dict, List
 
