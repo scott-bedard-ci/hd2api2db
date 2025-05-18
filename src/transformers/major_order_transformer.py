@@ -1,9 +1,12 @@
+from __future__ import annotations
+
 from datetime import datetime, timedelta
 import json
+from typing import Any, Dict, List
 
 class MajorOrderTransformer:
     @staticmethod
-    def transform(major_orders_data):
+    def transform(major_orders_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """Transform raw major order data from API to database format."""
         transformed_orders = []
         now = datetime.now()
@@ -30,4 +33,4 @@ class MajorOrderTransformer:
                 'updated_at': now.strftime('%Y-%m-%d %H:%M:%S'),
             }
             transformed_orders.append(transformed_item)
-        return transformed_orders 
+        return transformed_orders

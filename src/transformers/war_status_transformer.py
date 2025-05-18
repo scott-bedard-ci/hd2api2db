@@ -1,8 +1,11 @@
+from __future__ import annotations
+
 from datetime import datetime, UTC
+from typing import Any, Dict, List
 
 class WarStatusTransformer:
     @staticmethod
-    def transform(war_status_data):
+    def transform(war_status_data: Dict[str, Any]) -> Dict[str, Any]:
         """Transform raw war status data from API to database format.
         Returns a dict with 'war_status' and 'planet_status' keys.
         """
@@ -33,4 +36,4 @@ class WarStatusTransformer:
                 'position_y': planet.get('position', {}).get('y'),
             }
             planet_status_list.append(planet_status)
-        return {'war_status': war_status, 'planet_status': planet_status_list} 
+        return {'war_status': war_status, 'planet_status': planet_status_list}

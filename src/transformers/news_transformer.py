@@ -1,10 +1,13 @@
+from __future__ import annotations
+
 from datetime import datetime
 import logging
 import json
+from typing import Any, Dict, List
 
 class NewsTransformer:
     @staticmethod
-    def transform(news_data):
+    def transform(news_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """Transform raw news data from API to database format."""
         logger = logging.getLogger(__name__)
         transformed_news = []
@@ -28,4 +31,4 @@ class NewsTransformer:
                 transformed_news.append(transformed_item)
             except KeyError as e:
                 logger.warning(f'Missing expected field in news item: {e}')
-        return transformed_news 
+        return transformed_news
