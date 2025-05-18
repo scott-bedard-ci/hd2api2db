@@ -1,0 +1,4 @@
+[sandbox]
+bootstrap = [
+  "pip install pytest"
+] 
